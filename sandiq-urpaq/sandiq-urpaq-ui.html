@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сандық Ұрпақ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Unbounded:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0C0A06;
+  --parchment: #F5EDD8;
+  --parchment2: #EDE0C4;
+  --gold: #C8972A;
+  --gold2: #E8B84B;
+  --gold3: #F5D080;
+  --rust: #8B3A1E;
+  --sage: #4A6741;
+  --sky: #2B5B8A;
+  --warm: #D4956A;
+  --text: #2A2118;
+  --muted: #8A7A60;
+  --border: rgba(200,151,42,0.2);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+}
+
+/* ── NAVIGATION ── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(12,10,6,0.95), transparent);
+}
+
+.nav-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--gold2);
+  letter-spacing: 2px;
+}
+
+.nav-logo span {
+  color: rgba(232,184,75,0.4);
+  font-weight: 300;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(245,237,216,0.5);
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.nav-links a:hover { color: var(--gold2); }
+
+.nav-cta {
+  background: var(--gold);
+  color: var(--ink) !important;
+  padding: 10px 20px !important;
+  border-radius: 4px;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+/* ── SCREENS ── */
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+.screen.active { display: block; }
+
+/* ══════════════════════════
+   SCREEN 1 — LANDING
+══════════════════════════ */
+#screen-landing {
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Kazakh ornament background */
+.ornament-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image:
+    repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(-45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+  background-size: 30px 30px;
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 48px 80px;
+  position: relative;
+}
+
+.hero-ornament {
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 40px;
+  position: relative;
+}
+.hero-ornament::before, .hero-ornament::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+.hero-ornament::before { left: 20px; }
+.hero-ornament::after { right: 20px; }
+
+.hero-kazakh {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(13px, 2vw, 18px);
+  font-style: italic;
+  color: var(--gold2);
+  letter-spacing: 4px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.hero h1 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(36px, 7vw, 90px);
+  font-weight: 900;
+  line-height: 0.95;
+  color: var(--parchment);
+  margin-bottom: 8px;
+  animation: heroReveal 1.2s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.hero h1 .gold { color: var(--gold2); }
+
+.hero-sub {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(12px, 2vw, 16px);
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  animation: heroReveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.15s both;
+}
+
+.hero-desc {
+  font-size: clamp(16px, 2.5vw, 22px);
+  color: rgba(245,237,216,0.6);
+  max-width: 600px;
+  line-height: 1.7;
+  margin-bottom: 60px;
+  font-style: italic;
+  animation: heroReveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+}
+
+.hero-counter {
+  display: flex;
+  gap: 48px;
+  margin-bottom: 60px;
+  animation: heroReveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.45s both;
+}
+
+.counter-item {
+  text-align: center;
+}
+
+.counter-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 900;
+  color: var(--gold2);
+  display: block;
+  line-height: 1;
+}
+
+.counter-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  animation: heroReveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.6s both;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: var(--ink);
+  border: none;
+  padding: 18px 40px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(200,151,42,0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--parchment);
+  border: 1px solid rgba(245,237,216,0.2);
+  padding: 18px 40px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-secondary:hover {
+  border-color: var(--gold);
+  color: var(--gold2);
+}
+
+.price-badge {
+  position: absolute;
+  bottom: 48px;
+  right: 48px;
+  background: rgba(200,151,42,0.1);
+  border: 1px solid rgba(200,151,42,0.3);
+  border-radius: 12px;
+  padding: 16px 24px;
+  text-align: center;
+}
+
+.price-badge .price {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--gold2);
+  display: block;
+}
+
+.price-badge .price-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.scroll-hint span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+/* Features strip */
+.features-strip {
+  background: var(--parchment);
+  padding: 80px 48px;
+}
+
+.features-title {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.features-title h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(20px, 3vw, 36px);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.features-title p {
+  font-size: 18px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(200,151,42,0.15);
+}
+
+.feature-icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ══════════════════════════
+   SCREEN 2 — ONBOARDING
+══════════════════════════ */
+#screen-onboarding {
+  background: var(--parchment);
+}
+
+.onboard-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.onboard-left {
+  background: var(--ink);
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.onboard-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 70%, rgba(200,151,42,0.15), transparent 60%);
+}
+
+.onboard-left-content { position: relative; z-index: 1; }
+
+.onboard-left h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(24px, 3vw, 40px);
+  font-weight: 900;
+  color: var(--parchment);
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.onboard-left h2 span { color: var(--gold2); }
+
+.onboard-left p {
+  font-size: 17px;
+  color: rgba(245,237,216,0.6);
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 48px;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(200,151,42,0.15);
+  border: 1px solid rgba(200,151,42,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--gold2);
+  flex-shrink: 0;
+}
+
+.step-text h4 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--parchment);
+  margin-bottom: 4px;
+}
+
+.step-text p {
+  font-size: 13px;
+  color: rgba(245,237,216,0.5);
+  font-style: normal;
+  margin-bottom: 0;
+}
+
+.onboard-right {
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.onboard-form-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.onboard-form-sub {
+  font-size: 15px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 40px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200,151,42,0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.payment-block {
+  background: linear-gradient(135deg, rgba(200,151,42,0.08), rgba(200,151,42,0.03));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.payment-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.payment-amount {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.kaspi-badge {
+  background: #ef3e42;
+  color: white;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+/* ══════════════════════════
+   SCREEN 3 — FAMILY TREE
+══════════════════════════ */
+#screen-tree {
+  background: var(--parchment2);
+}
+
+.tree-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+.tree-sidebar {
+  background: var(--ink);
+  padding: 80px 24px 32px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-family {
+  margin-bottom: 32px;
+}
+
+.sidebar-family-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--gold2);
+  margin-bottom: 4px;
+}
+
+.sidebar-family-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.sidebar-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.stat-box {
+  background: rgba(245,237,216,0.04);
+  border: 1px solid rgba(245,237,216,0.08);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.stat-box .num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--gold2);
+  display: block;
+}
+
+.stat-box .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.sidebar-section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(245,237,216,0.08);
+}
+
+.sidebar-members {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.member-item:hover { background: rgba(245,237,216,0.05); }
+
+.member-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(200,151,42,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: rgba(200,151,42,0.1);
+  flex-shrink: 0;
+}
+
+.member-info { flex: 1; }
+
+.member-name {
+  font-size: 13px;
+  color: var(--parchment);
+  font-weight: 600;
+  display: block;
+}
+
+.member-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.member-role.owner { color: var(--gold); }
+.member-role.living { color: #4A9B6F; }
+.member-role.historical { color: var(--muted); }
+
+.sidebar-add-btn {
+  width: 100%;
+  padding: 12px;
+  background: rgba(200,151,42,0.1);
+  border: 1px dashed rgba(200,151,42,0.3);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.sidebar-add-btn:hover { background: rgba(200,151,42,0.18); }
+
+/* Tree canvas */
+.tree-canvas {
+  padding: 80px 48px 48px;
+  overflow: auto;
+}
+
+.tree-canvas-title {
+  margin-bottom: 48px;
+}
+
+.tree-canvas-title h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.tree-canvas-title p {
+  font-size: 15px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Visual tree */
+.visual-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 700px;
+}
+
+.tree-gen {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  position: relative;
+}
+
+.tree-gen-label {
+  position: absolute;
+  left: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vline {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--gold), rgba(200,151,42,0.3));
+  margin: 0 auto;
+}
+
+.hline-container {
+  position: relative;
+  height: 40px;
+  width: 400px;
+  margin: 0 auto;
+}
+
+.hline-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold), transparent);
+}
+
+.hline-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(180deg, var(--gold), rgba(200,151,42,0.3));
+}
+
+/* Person node card */
+.person-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.pnode {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  min-width: 140px;
+  text-align: center;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.pnode:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(200,151,42,0.2);
+  border-color: var(--gold);
+}
+
+.pnode.self-node {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  border-color: var(--gold2);
+  color: var(--ink);
+}
+
+.pnode.historical-node {
+  background: rgba(245,237,216,0.5);
+  border-style: dashed;
+  opacity: 0.8;
+}
+
+.pnode.deceased-node {
+  background: #f0ebe0;
+}
+
+.pnode-emoji { font-size: 28px; margin-bottom: 6px; }
+
+.pnode-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.pnode.self-node .pnode-name { color: var(--ink); }
+
+.pnode-years {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.pnode-tag {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+}
+
+.tag-you { background: var(--gold); color: var(--ink); font-weight: 700; }
+.tag-hist { background: var(--muted); color: white; }
+.tag-new { background: var(--sage); color: white; }
+
+.pnode-add {
+  background: transparent;
+  border: 2px dashed rgba(200,151,42,0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+  min-width: 130px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.pnode-add:hover {
+  border-color: var(--gold);
+  background: rgba(200,151,42,0.05);
+}
+
+.pnode-add-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+/* ══════════════════════════
+   SCREEN 4 — ANCESTOR PROFILE
+══════════════════════════ */
+#screen-profile {
+  background: var(--parchment);
+}
+
+.profile-layout {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 100px 48px 80px;
+}
+
+.profile-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  cursor: pointer;
+  margin-bottom: 48px;
+  transition: color 0.2s;
+}
+
+.profile-back:hover { color: var(--gold); }
+
+.profile-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 64px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--warm));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  border: 4px solid var(--parchment);
+  box-shadow: 0 8px 32px rgba(200,151,42,0.3);
+  flex-shrink: 0;
+}
+
+.profile-info { flex: 1; }
+
+.profile-gen {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.profile-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.profile-dates {
+  font-size: 18px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.profile-access {
+  background: rgba(200,151,42,0.08);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.access-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.access-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+/* Memory tabs */
+.memory-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 32px;
+  border-bottom: 2px solid var(--border);
+}
+
+.mem-tab {
+  padding: 12px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mem-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.mem-tab:hover:not(.active) { color: var(--text); }
+
+/* Memory content */
+.memory-content { display: none; }
+.memory-content.active { display: block; }
+
+/* Audio player */
+.audio-memory {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 16px;
+}
+
+.audio-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.audio-play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.audio-play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(200,151,42,0.4);
+}
+
+.audio-info { flex: 1; }
+
+.audio-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.audio-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.audio-wave {
+  height: 48px;
+  background: linear-gradient(90deg,
+    rgba(200,151,42,0.3) 0%, rgba(200,151,42,0.6) 5%,
+    rgba(200,151,42,0.2) 10%, rgba(200,151,42,0.8) 15%,
+    rgba(200,151,42,0.4) 20%, rgba(200,151,42,0.9) 28%,
+    rgba(200,151,42,0.3) 35%, rgba(200,151,42,0.7) 42%,
+    rgba(200,151,42,0.5) 50%, rgba(200,151,42,0.4) 58%,
+    rgba(200,151,42,0.8) 65%, rgba(200,151,42,0.3) 72%,
+    rgba(200,151,42,0.6) 80%, rgba(200,151,42,0.2) 88%,
+    rgba(200,151,42,0.5) 95%, rgba(200,151,42,0.3) 100%
+  );
+  border-radius: 4px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 35%;
+  height: 100%;
+  background: rgba(200,151,42,0.15);
+  border-right: 2px solid var(--gold);
+}
+
+.audio-transcript {
+  background: rgba(245,237,216,0.5);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.8;
+  font-style: italic;
+  border-left: 3px solid var(--gold);
+}
+
+/* Story */
+.story-text {
+  font-size: 18px;
+  line-height: 2;
+  color: var(--text);
+  font-style: italic;
+}
+
+.story-text p { margin-bottom: 24px; }
+
+.story-text .drop-cap::first-letter {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--gold);
+  float: left;
+  line-height: 0.8;
+  margin: 8px 12px 0 0;
+}
+
+/* Photo grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.photo-item {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  background: var(--parchment2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  transition: transform 0.2s;
+}
+
+.photo-item:hover { transform: scale(1.02); }
+
+.photo-item .photo-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(12,10,6,0.8));
+  padding: 16px 12px 10px;
+  font-size: 11px;
+  color: var(--parchment);
+  font-style: italic;
+}
+
+/* Map preview */
+.map-preview {
+  background: #e8f0e8;
+  border-radius: 16px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.map-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 6px rgba(200,151,42,0.3);
+  position: absolute;
+}
+
+.map-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -120%);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.map-placeholder {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+/* ══════════════════════════
+   SCREEN 5 — CERTIFICATE
+══════════════════════════ */
+#screen-certificate {
+  background: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 48px;
+}
+
+.cert-wrapper {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.cert-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 40px;
+}
+
+.certificate {
+  background: var(--parchment);
+  border: 3px solid var(--gold);
+  border-radius: 4px;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(200,151,42,0.2), inset 0 0 60px rgba(200,151,42,0.05);
+}
+
+/* Corner ornaments */
+.cert-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: var(--gold);
+  border-style: solid;
+}
+.cert-corner.tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.cert-corner.tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.cert-corner.bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.cert-corner.br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+.cert-ornament-line {
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 16px auto;
+}
+
+.cert-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+
+.cert-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 24px;
+}
+
+.cert-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.cert-num-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.cert-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--ink);
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.cert-desc {
+  font-size: 15px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.cert-seal {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  background: rgba(200,151,42,0.05);
+}
+
+.cert-actions {
+  margin-top: 32px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes heroReveal {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200,151,42,0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(200,151,42,0); }
+}
+
+.pulse { animation: pulse 2s ease-in-out infinite; }
+
+/* ── BOTTOM NAV (demo) ── */
+.demo-nav {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12,10,6,0.95);
+  border: 1px solid rgba(200,151,42,0.2);
+  border-radius: 40px;
+  padding: 12px 24px;
+  display: flex;
+  gap: 8px;
+  z-index: 200;
+  backdrop-filter: blur(20px);
+}
+
+.demo-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  color: var(--muted);
+  background: transparent;
+}
+
+.demo-btn:hover, .demo-btn.active {
+  background: rgba(200,151,42,0.15);
+  border-color: rgba(200,151,42,0.3);
+  color: var(--gold2);
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  .onboard-layout { grid-template-columns: 1fr; }
+  .onboard-left { display: none; }
+  .tree-layout { grid-template-columns: 1fr; }
+  .tree-sidebar { display: none; }
+  .profile-header { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .hero-counter { gap: 24px; }
+  .hero-cta { flex-direction: column; }
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">САНДЫҚ <span>ҰРПАҚ</span></div>
+  <div class="nav-links">
+    <a onclick="showScreen('screen-tree')">Моё дерево</a>
+    <a onclick="showScreen('screen-profile')">Предки</a>
+    <a onclick="showScreen('screen-certificate')">Сертификат</a>
+    <a class="nav-cta" onclick="showScreen('screen-onboarding')">Войти — 500 ₸</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════
+     SCREEN 1 — LANDING
+════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="ornament-bg"></div>
+
+  <div class="hero">
+    <div class="hero-ornament"></div>
+    <div class="hero-kazakh">Жеті атаңды біл</div>
+    <h1>САНДЫҚ<br><span class="gold">ҰРПАҚ</span></h1>
+    <div class="hero-sub">Цифровое Поколение</div>
+    <p class="hero-desc">
+      Сохрани голос своего атасы. Передай мудрость своих предков.<br>
+      Стань частью первой народной памяти Казахстана.
+    </p>
+
+    <div class="hero-counter">
+      <div class="counter-item">
+        <span class="counter-num">47,832</span>
+        <span class="counter-label">Хранителей</span>
+      </div>
+      <div class="counter-item">
+        <span class="counter-num">312,000</span>
+        <span class="counter-label">Предков</span>
+      </div>
+      <div class="counter-item">
+        <span class="counter-num">89</span>
+        <span class="counter-label">Регионов</span>
+      </div>
+    </div>
+
+    <div class="hero-cta">
+      <button class="btn-primary pulse" onclick="showScreen('screen-onboarding')">
+        Стать Хранителем — 500 ₸
+      </button>
+      <button class="btn-secondary" onclick="showScreen('screen-tree')">
+        Смотреть демо
+      </button>
+    </div>
+
+    <div class="scroll-hint">
+      <span>Узнать больше</span>
+      <div class="scroll-line"></div>
+    </div>
+
+    <div class="price-badge">
+      <span class="price">500 ₸</span>
+      <span class="price-label">навсегда</span>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features-strip">
+    <div class="features-title">
+      <h2>Что вы создаёте за 500 тенге</h2>
+      <p>Не просто профиль — живая память поколений</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🌳</div>
+        <h3>Родословное дерево</h3>
+        <p>Добавляйте предков, детей, братьев. Дерево растёт вместе с семьёй через приглашения.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎙️</div>
+        <h3>Голос предков</h3>
+        <p>Запишите голос бабушки или дедушки. ИИ транскрибирует и сохранит навсегда на казахском.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>ИИ-помощник</h3>
+        <p>Не знаете с чего начать? ИИ задаст 7 вопросов и напишет биографию предка за вас.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Карта происхождения</h3>
+        <p>Откройте откуда ваш род. Интерактивная карта маршрутов семьи по Казахстану.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏅</div>
+        <h3>Сертификат хранителя</h3>
+        <p>Уникальный ИИ-сертификат с казахским орнаментом. Ваш номер в истории платформы.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Приватность семьи</h3>
+        <p>Детали видит только ваша семья. Мир видит только имя и регион. Вы управляете доступом.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN 2 — ONBOARDING
+════════════════════════════ -->
+<div id="screen-onboarding" class="screen">
+  <div class="onboard-layout">
+    <div class="onboard-left">
+      <div class="onboard-left-content">
+        <h2>Стань частью<br><span>истории Казахстана</span></h2>
+        <p>500 тенге — и ваш голос, ваши предки, ваша культура живут вечно в народной памяти.</p>
+
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-dot">1</div>
+            <div class="step-text">
+              <h4>Зарегистрируйтесь</h4>
+              <p>Через телефон или Telegram за 30 секунд</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">2</div>
+            <div class="step-text">
+              <h4>Оплатите через Kaspi</h4>
+              <p>500 ₸ — одноразово, навсегда</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">3</div>
+            <div class="step-text">
+              <h4>Получите сертификат</h4>
+              <p>Уникальный AI-сертификат с вашим номером</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">4</div>
+            <div class="step-text">
+              <h4>Создайте дерево</h4>
+              <p>Добавьте предков и пригласите родственников</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="onboard-right">
+      <div class="onboard-form-title">Создать аккаунт</div>
+      <div class="onboard-form-sub">Присоединяйтесь к 47,832 хранителям культуры Казахстана</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Имя</label>
+          <input class="form-input" type="text" placeholder="Алибек">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Фамилия</label>
+          <input class="form-input" type="text" placeholder="Сейтов">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Номер телефона</label>
+        <input class="form-input" type="tel" placeholder="+7 (700) 000 00 00">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Жуз / Регион</label>
+        <input class="form-input" type="text" placeholder="Старший жуз · Алматы">
+      </div>
+
+      <div class="payment-block">
+        <div>
+          <div class="payment-label">Сумма оплаты</div>
+          <div class="payment-amount">500 ₸</div>
+        </div>
+        <div class="kaspi-badge">Kaspi Pay</div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;margin-bottom:12px" onclick="showScreen('screen-certificate')">
+        Оплатить и стать хранителем
+      </button>
+      <button class="btn-secondary" style="width:100%" onclick="showScreen('screen-landing')">
+        ← Назад
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN 3 — FAMILY TREE
+════════════════════════════ -->
+<div id="screen-tree" class="screen">
+  <div class="tree-layout">
+
+    <!-- Sidebar -->
+    <div class="tree-sidebar">
+      <div class="sidebar-family">
+        <div class="sidebar-family-name">Сейтовтар</div>
+        <div class="sidebar-family-meta">Семья Сейтовых · с 2024</div>
+      </div>
+
+      <div class="sidebar-stats">
+        <div class="stat-box">
+          <span class="num">14</span>
+          <span class="lbl">Предков</span>
+        </div>
+        <div class="stat-box">
+          <span class="num">5</span>
+          <span class="lbl">Поколений</span>
+        </div>
+        <div class="stat-box">
+          <span class="num">6</span>
+          <span class="lbl">Участников</span>
+        </div>
+        <div class="stat-box">
+          <span class="num">23</span>
+          <span class="lbl">Воспоминаний</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">Члены дерева</div>
+      <div class="sidebar-members">
+        <div class="member-item">
+          <div class="member-avatar">👤</div>
+          <div class="member-info">
+            <span class="member-name">Алибек Сейтов</span>
+            <span class="member-role owner">★ OWNER</span>
+          </div>
+        </div>
+        <div class="member-item">
+          <div class="member-avatar">👨</div>
+          <div class="member-info">
+            <span class="member-name">Марат Сейтов</span>
+            <span class="member-role living">● Живой · Editor</span>
+          </div>
+        </div>
+        <div class="member-item">
+          <div class="member-avatar">👩</div>
+          <div class="member-info">
+            <span class="member-name">Айгуль Сейтова</span>
+            <span class="member-role living">● Живая · Editor</span>
+          </div>
+        </div>
+        <div class="member-item">
+          <div class="member-avatar">👴</div>
+          <div class="member-info">
+            <span class="member-name">Ахмет Сейтов</span>
+            <span class="member-role historical">✦ Исторический</span>
+          </div>
+        </div>
+        <div class="member-item">
+          <div class="member-avatar">👵</div>
+          <div class="member-info">
+            <span class="member-name">Зейнеп Сейтова</span>
+            <span class="member-role historical">✦ Исторический</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="sidebar-add-btn">+ Пригласить родственника</button>
+    </div>
+
+    <!-- Tree canvas -->
+    <div class="tree-canvas">
+      <div class="tree-canvas-title">
+        <h2>Шежіре Сейтовтар</h2>
+        <p>Родословная семьи Сейтовых · 5 поколений · XIV–XXI век</p>
+      </div>
+
+      <div class="visual-tree">
+
+        <!-- Gen -3 -->
+        <div class="tree-gen" style="position:relative">
+          <div class="person-node" onclick="showScreen('screen-profile')">
+            <div class="pnode historical-node">
+              <div class="pnode-tag tag-hist">ИСТОРИЯ</div>
+              <div class="pnode-emoji">☠️</div>
+              <div class="pnode-name">Қасым би</div>
+              <div class="pnode-years">~1850 — 1921</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vline"></div>
+
+        <!-- Gen -2 -->
+        <div class="tree-gen">
+          <div class="person-node" onclick="showScreen('screen-profile')">
+            <div class="pnode deceased-node">
+              <div class="pnode-tag tag-hist">ДЕД</div>
+              <div class="pnode-emoji">👴</div>
+              <div class="pnode-name">Ахмет Сейтов</div>
+              <div class="pnode-years">1905 — 1978</div>
+            </div>
+          </div>
+          <div class="person-node">
+            <div class="pnode deceased-node">
+              <div class="pnode-emoji">👵</div>
+              <div class="pnode-name">Зейнеп апа</div>
+              <div class="pnode-years">1910 — 1989</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hline-container" style="width:320px"></div>
+
+        <!-- Gen -1 -->
+        <div class="tree-gen" style="gap:32px">
+          <div class="person-node" onclick="showScreen('screen-profile')">
+            <div class="pnode">
+              <div class="pnode-emoji">👨</div>
+              <div class="pnode-name">Марат Сейтов</div>
+              <div class="pnode-years">1958 — жив</div>
+            </div>
+          </div>
+          <div class="person-node">
+            <div class="pnode">
+              <div class="pnode-emoji">👩</div>
+              <div class="pnode-name">Айгуль Сейтова</div>
+              <div class="pnode-years">1962 — жива</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hline-container" style="width:200px"></div>
+
+        <!-- Gen 0 — ME -->
+        <div class="tree-gen">
+          <div class="person-node">
+            <div class="pnode self-node">
+              <div class="pnode-tag tag-you">ВЫ</div>
+              <div class="pnode-emoji">⭐</div>
+              <div class="pnode-name">Алибек Сейтов</div>
+              <div class="pnode-years">1990 — жив</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hline-container" style="width:280px"></div>
+
+        <!-- Gen +1 -->
+        <div class="tree-gen" style="gap:20px">
+          <div class="person-node">
+            <div class="pnode">
+              <div class="pnode-tag tag-new">НОВЫЙ</div>
+              <div class="pnode-emoji">👦</div>
+              <div class="pnode-name">Данияр</div>
+              <div class="pnode-years">2018 — жив</div>
+            </div>
+          </div>
+          <div class="person-node">
+            <div class="pnode">
+              <div class="pnode-emoji">👧</div>
+              <div class="pnode-name">Зарина</div>
+              <div class="pnode-years">2020 — жива</div>
+            </div>
+          </div>
+          <div class="person-node">
+            <button class="pnode-add" onclick="showScreen('screen-onboarding')">
+              <span class="pnode-add-icon">＋</span>
+              Добавить
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN 4 — ANCESTOR PROFILE
+════════════════════════════ -->
+<div id="screen-profile" class="screen">
+  <div class="profile-layout">
+
+    <div class="profile-back" onclick="showScreen('screen-tree')">
+      ← Вернуться к дереву
+    </div>
+
+    <div class="profile-header">
+      <div class="profile-avatar">👴</div>
+      <div class="profile-info">
+        <div class="profile-gen">✦ Поколение −2 · Дед · Исторический</div>
+        <div class="profile-name">Ахмет Сейтов</div>
+        <div class="profile-dates">1905 — 1978 · 73 года</div>
+        <div class="profile-meta">
+          <span class="meta-tag">🗺️ Семей, Павлодарская обл.</span>
+          <span class="meta-tag">🏔️ Средний жуз</span>
+          <span class="meta-tag">🌾 Животновод</span>
+          <span class="meta-tag">🎙️ 3 аудио</span>
+          <span class="meta-tag">📸 12 фото</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-access">
+      <div>
+        <div class="access-label">Уровень доступа</div>
+        <div class="access-value">🔵 FAMILY — видят только члены дерева</div>
+      </div>
+      <button class="btn-secondary" style="padding:8px 16px;font-size:11px">Изменить</button>
+    </div>
+
+    <div class="memory-tabs">
+      <div class="mem-tab active" onclick="switchTab(this,'tab-audio')">🎙️ Аудио (3)</div>
+      <div class="mem-tab" onclick="switchTab(this,'tab-story')">📖 История</div>
+      <div class="mem-tab" onclick="switchTab(this,'tab-photos')">📸 Фото (12)</div>
+      <div class="mem-tab" onclick="switchTab(this,'tab-map')">🗺️ Откуда родом</div>
+    </div>
+
+    <!-- Audio tab -->
+    <div id="tab-audio" class="memory-content active">
+      <div class="audio-memory">
+        <div class="audio-header">
+          <button class="audio-play-btn">▶</button>
+          <div class="audio-info">
+            <div class="audio-title">Рассказ о жизни в ауле</div>
+            <div class="audio-meta">Записал: Марат Сейтов · 12 мин · 2023</div>
+          </div>
+        </div>
+        <div class="audio-wave">
+          <div class="audio-progress"></div>
+        </div>
+        <div class="audio-transcript">
+          <strong style="font-style:normal;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;color:#8A7A60">ИИ-транскрипция на казахском:</strong><br><br>
+          «Атам маған айтқан: жерді сүй, жерің сені сүйеді. Семей маңында біздің отбасы үш ұрпақтан бері тұрады. 1943 жылы соғыс кезінде...»
+        </div>
+      </div>
+
+      <div class="audio-memory">
+        <div class="audio-header">
+          <button class="audio-play-btn">▶</button>
+          <div class="audio-info">
+            <div class="audio-title">Наставление внукам</div>
+            <div class="audio-meta">Записала: Айгуль Сейтова · 5 мин · 2024</div>
+          </div>
+        </div>
+        <div class="audio-wave" style="opacity:0.7"></div>
+        <div class="audio-transcript">
+          «Балаларым, жеті атаңды білмесең — жетімсің. Менің атам Қасым би болатын...»
+        </div>
+      </div>
+    </div>
+
+    <!-- Story tab -->
+    <div id="tab-story" class="memory-content">
+      <div class="story-text">
+        <p class="drop-cap">Ахмет Сейтов родился в 1905 году в небольшом ауле близ Семея. Его отец Қасым би был известным скотоводом и уважаемым человеком Среднего жуза. Ахмет с детства помогал отцу пасти табуны лошадей на бескрайних степях Павлодарской области.</p>
+        <p>В годы коллективизации 1930-х семья пережила тяжелейшие испытания. Ахмет сохранил часть скота, спрятав его у дальних родственников. Эта мудрость и дальновидность помогла семье выжить в годы голода.</p>
+        <p>В 1943 году Ахмет ушёл на фронт. Вернулся в 1945-м с медалью «За отвагу». После войны восстанавливал колхоз, стал бригадиром. Вырастил четырёх детей, дав каждому образование — то, чего сам был лишён.</p>
+        <p style="color:var(--muted);font-size:15px">— <em>Записано ИИ-помощником на основе воспоминаний Марата Сейтова, 2024 г.</em></p>
+      </div>
+    </div>
+
+    <!-- Photos tab -->
+    <div id="tab-photos" class="memory-content">
+      <div class="photo-grid">
+        <div class="photo-item">🏠<div class="photo-label">Дом в ауле, ~1950е</div></div>
+        <div class="photo-item">🐴<div class="photo-label">На пастбище, 1960</div></div>
+        <div class="photo-item">👨‍👩‍👧‍👦<div class="photo-label">Вся семья, 1970</div></div>
+        <div class="photo-item">📜<div class="photo-label">Медаль «За отвагу»</div></div>
+        <div class="photo-item">🌾<div class="photo-label">Уборка урожая, 1965</div></div>
+        <div class="photo-item" style="background:rgba(200,151,42,0.1);border-style:dashed;cursor:pointer;font-size:24px;color:var(--gold)">＋<div class="photo-label" style="color:var(--gold)">Добавить фото</div></div>
+      </div>
+    </div>
+
+    <!-- Map tab -->
+    <div id="tab-map" class="memory-content">
+      <div class="map-preview">
+        <div class="map-placeholder">🗺️</div>
+        <div class="map-dot" style="top:38%;left:62%">
+          <div class="map-label">📍 Семей, Павлодар</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:16px;background:white;border-radius:12px;border:1px solid var(--border)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:8px">МАРШРУТ СЕМЬИ</div>
+        <div style="font-size:15px;color:var(--text)">Семей (1905) → Алматы (1952) → Нур-Султан (2010)</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN 5 — CERTIFICATE
+════════════════════════════ -->
+<div id="screen-certificate" class="screen">
+  <div class="cert-wrapper">
+    <div class="cert-title">Ваш сертификат хранителя</div>
+
+    <div class="certificate">
+      <div class="cert-corner tl"></div>
+      <div class="cert-corner tr"></div>
+      <div class="cert-corner bl"></div>
+      <div class="cert-corner br"></div>
+
+      <div class="cert-logo">САНДЫҚ ҰРПАҚ</div>
+      <div class="cert-subtitle">Цифровое Поколение · Казахстан</div>
+      <div class="cert-ornament-line"></div>
+
+      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);margin-bottom:8px;font-style:italic">Настоящим подтверждается, что</div>
+
+      <div class="cert-name">Алибек Сейтов</div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:16px">является хранителем культуры</div>
+
+      <div class="cert-num">#47,833</div>
+      <div class="cert-num-label">Номер хранителя</div>
+
+      <div class="cert-desc">
+        Ваш голос, история вашей семьи и культура ваших предков<br>
+        навсегда стали частью народной памяти Казахстана
+      </div>
+
+      <div class="cert-ornament-line"></div>
+
+      <div class="cert-seal">🌾</div>
+
+      <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px">
+        30 МАРТА 2026 · ALMATY, KAZAKHSTAN
+      </div>
+    </div>
+
+    <div class="cert-actions">
+      <button class="btn-primary" onclick="showScreen('screen-tree')">
+        Создать дерево →
+      </button>
+      <button class="btn-secondary">
+        Поделиться 📤
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO NAVIGATION -->
+<div class="demo-nav">
+  <button class="demo-btn active" onclick="showScreen('screen-landing');setActive(this)">🏠 Лендинг</button>
+  <button class="demo-btn" onclick="showScreen('screen-onboarding');setActive(this)">📝 Регистрация</button>
+  <button class="demo-btn" onclick="showScreen('screen-tree');setActive(this)">🌳 Дерево</button>
+  <button class="demo-btn" onclick="showScreen('screen-profile');setActive(this)">👴 Предок</button>
+  <button class="demo-btn" onclick="showScreen('screen-certificate');setActive(this)">🏅 Сертификат</button>
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+
+  // sync demo nav
+  const map = {
+    'screen-landing': 0,
+    'screen-onboarding': 1,
+    'screen-tree': 2,
+    'screen-profile': 3,
+    'screen-certificate': 4
+  };
+  const btns = document.querySelectorAll('.demo-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  if (map[id] !== undefined) btns[map[id]].classList.add('active');
+}
+
+function setActive(el) {
+  document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchTab(el, tabId) {
+  // tabs
+  el.closest('.screen').querySelectorAll('.mem-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  // content
+  el.closest('.screen').querySelectorAll('.memory-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+// Animate counters
+function animateCounter(el, target) {
+  let current = 0;
+  const step = target / 60;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.floor(current).toLocaleString('ru');
+    if (current >= target) clearInterval(timer);
+  }, 16);
+}
+
+window.addEventListener('load', () => {
+  document.querySelectorAll('.counter-num').forEach(el => {
+    const raw = el.textContent.replace(/,/g, '');
+    const target = parseInt(raw);
+    if (!isNaN(target)) animateCounter(el, target);
+  });
+});
+</script>
+</body>
+</html>

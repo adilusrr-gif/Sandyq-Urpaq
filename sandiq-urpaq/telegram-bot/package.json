@@ -1,0 +1,19 @@
+{
+  "name": "sandiq-telegram-bot",
+  "version": "1.0.0",
+  "description": "Сандық Ұрпақ — Telegram Bot MVP",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "nodemon src/bot.js"
+  },
+  "dependencies": {
+    "grammy": "^1.26.0",
+    "@supabase/supabase-js": "^2.43.4",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
