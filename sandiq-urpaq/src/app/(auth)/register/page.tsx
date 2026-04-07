@@ -32,8 +32,9 @@ export default function RegisterPage() {
       const supabase = createClient() as any
       const birthYear = Number.isFinite(data.birth_year as number) ? data.birth_year : null
 
-      // 1. Create Supabase auth user (email = phone@sandiq.kz workaround)
-      const email = `${data.phone.replace(/\D/g, '')}@sandiq.kz`
+      // 1. Create Supabase auth user (email = phone@example.com workaround)
+      // Using example.com as it's a reserved domain that passes email validation
+      const email = `${data.phone.replace(/\D/g, '')}@example.com`
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password: data.password,

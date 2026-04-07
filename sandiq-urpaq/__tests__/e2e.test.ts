@@ -17,7 +17,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 // ── TEST UTILS ──────────────────────────────
 
 const testUser = {
-  email: `test_${Date.now()}@sandiq.kz`,
+  email: `test_${Date.now()}@example.com`,
   password: 'TestPassword123!',
   fullName: 'Тест Пользователь',
 }

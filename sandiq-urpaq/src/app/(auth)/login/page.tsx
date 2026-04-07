@@ -30,7 +30,8 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const supabase = createClient()
-      const email = `${data.phone.replace(/\D/g, '')}@sandiq.kz`
+      // Using example.com as it's a reserved domain that passes email validation
+      const email = `${data.phone.replace(/\D/g, '')}@example.com`
       const { error } = await supabase.auth.signInWithPassword({ email, password: data.password })
       if (error) throw error
       toast.success('Добро пожаловать!')
