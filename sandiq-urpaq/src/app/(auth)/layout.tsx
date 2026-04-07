@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="relative z-10">
           <div className="font-display font-black text-gold-2 text-2xl tracking-widest mb-2">
-            САНДЫҚ ҰРПАҚ
+            Sandy<span className="text-gold">Q</span> Urpa<span className="text-gold">Q</span>
           </div>
           <div className="font-mono text-[10px] tracking-[4px] text-gold/60 uppercase mb-16">
             Память семьи в цифровом формате
@@ -50,7 +50,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Right: form */}
-      <div className="flex items-center justify-center px-6 py-12 md:px-16">
+      <div className="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-12 md:px-16 safe-area-inset">
         <div className="w-full max-w-md">
           {children}
         </div>

@@ -77,13 +77,24 @@
 }
 
 @layer components {
+  /* Buttons - minimum 44px touch target for mobile */
   .btn-primary {
-    @apply font-display font-bold text-xs uppercase rounded transition-all
+    @apply font-display font-bold text-sm uppercase rounded transition-all
            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
-    padding: 0.95rem 2rem;
-    letter-spacing: 0.16em;
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    letter-spacing: 0.12em;
     background: linear-gradient(135deg, #C8972A 0%, #E8B84B 100%);
     color: #0C0A06;
+    /* Prevent double-tap zoom on iOS */
+    touch-action: manipulation;
+  }
+
+  @media (min-width: 640px) {
+    .btn-primary {
+      padding: 0.95rem 2rem;
+      letter-spacing: 0.16em;
+    }
   }
 
   .btn-primary:hover {
@@ -91,13 +102,26 @@
     box-shadow: 0 12px 40px rgba(200, 151, 42, 0.4);
   }
 
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
   .btn-secondary {
-    @apply font-display font-light text-xs uppercase rounded transition-all
+    @apply font-display font-light text-sm uppercase rounded transition-all
            disabled:opacity-50 disabled:cursor-not-allowed;
-    padding: 0.95rem 2rem;
-    letter-spacing: 0.16em;
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    letter-spacing: 0.12em;
     border: 1px solid rgba(245, 237, 216, 0.2);
     color: #F5EDD8;
+    touch-action: manipulation;
+  }
+
+  @media (min-width: 640px) {
+    .btn-secondary {
+      padding: 0.95rem 2rem;
+      letter-spacing: 0.16em;
+    }
   }
 
   .btn-secondary:hover {
@@ -106,10 +130,13 @@
   }
 
   .btn-ghost {
-    @apply font-mono text-xs uppercase transition-colors
+    @apply font-mono text-sm uppercase transition-colors
            disabled:opacity-30 disabled:cursor-not-allowed;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
     color: rgba(245, 237, 216, 0.5);
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
+    touch-action: manipulation;
   }
 
   .btn-ghost:hover {
@@ -117,22 +144,31 @@
   }
 
   .card {
-    @apply rounded-xl p-6;
+    @apply rounded-xl p-4 sm:p-6;
     background: var(--surface-soft);
     border: 1px solid var(--surface-border);
   }
 
   .card-gold {
-    @apply rounded-xl p-6;
+    @apply rounded-xl p-4 sm:p-6;
     background: linear-gradient(135deg, rgba(200, 151, 42, 0.12) 0%, rgba(200, 151, 42, 0.04) 100%);
     border: 1px solid var(--gold-soft);
   }
 
+  /* Input fields - minimum 16px font to prevent iOS zoom */
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg font-body text-lg outline-none transition-all;
+    @apply w-full px-4 py-3 rounded-lg font-body outline-none transition-all;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 48px;
     background: #FFFFFF;
     color: #0C0A06;
     border: 1px solid rgba(200, 151, 42, 0.2);
+  }
+
+  @media (min-width: 640px) {
+    .input-field {
+      font-size: 18px;
+    }
   }
 
   .input-field::placeholder {
@@ -144,10 +180,23 @@
     box-shadow: 0 0 0 3px rgba(200, 151, 42, 0.1);
   }
 
+  .input-field:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   .label {
-    @apply block font-mono text-[10px] uppercase mb-2;
-    letter-spacing: 0.3em;
+    @apply block font-mono uppercase mb-2;
+    font-size: 11px;
+    letter-spacing: 0.25em;
     color: rgba(245, 237, 216, 0.5);
+  }
+
+  @media (min-width: 640px) {
+    .label {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+    }
   }
 
   .section-title {

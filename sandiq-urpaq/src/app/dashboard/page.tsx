@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { PAYMENT_ENABLED } from '@/lib/config'
 
 export default async function DashboardPage({
   searchParams,
@@ -46,8 +47,9 @@ export default async function DashboardPage({
         .in('person_id', personIds)
     : { data: [] }
 
-  const isPaid = !!profile?.paid_at
-  const showOnboarding = searchParams.onboarding === 'true' || !isPaid
+  // If payments are disabled, treat everyone as paid
+  const isPaid = !PAYMENT_ENABLED || !!profile?.paid_at
+  const showOnboarding = PAYMENT_ENABLED && (searchParams.onboarding === 'true' || !isPaid)
   const generations = (persons ?? []).length > 0
     ? Math.max(...(persons ?? []).map((person) => person.generation_num))
       - Math.min(...(persons ?? []).map((person) => person.generation_num))
