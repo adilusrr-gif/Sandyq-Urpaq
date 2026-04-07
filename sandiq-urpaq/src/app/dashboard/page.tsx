@@ -59,21 +59,21 @@ export default async function DashboardPage({
   return (
     <div className="min-h-screen bg-ink">
       {/* Header */}
-      <header className="border-b border-[rgba(245,237,216,0.08)] px-8 py-5 flex items-center justify-between">
-        <div className="font-display font-black text-gold-2 text-sm tracking-widest">
+      <header className="border-b border-[rgba(245,237,216,0.08)] px-4 md:px-8 py-4 md:py-5 flex items-center justify-between">
+        <Link href="/" className="font-display font-black text-gold-2 text-sm tracking-widest">
           Sandy<span className="text-gold">Q</span> <span className="text-gold/40 font-light">Urpa<span className="text-gold">Q</span></span>
-        </div>
-        <div className="flex items-center gap-6">
-          <span className="font-body italic text-parchment/40 text-base">
+        </Link>
+        <div className="flex items-center gap-3 md:gap-6">
+          <span className="hidden sm:inline font-body italic text-parchment/40 text-base">
             {profile?.full_name}
           </span>
           {profile?.participant_num && (
-            <span className="font-mono text-[10px] tracking-[2px] text-gold border border-gold/30 px-3 py-1 rounded-full">
+            <span className="font-mono text-[10px] tracking-[2px] text-gold border border-gold/30 px-2 md:px-3 py-1 rounded-full">
               #{profile.participant_num.toLocaleString('ru')}
             </span>
           )}
           <form action="/api/auth/logout" method="POST">
-            <button className="btn-ghost">Выйти</button>
+            <button className="btn-ghost text-[10px] md:text-xs">Выйти</button>
           </form>
         </div>
       </header>

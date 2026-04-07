@@ -42,11 +42,12 @@ export default async function HomePage() {
       />
 
       {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-4 md:py-5
                       bg-gradient-to-b from-ink/95 to-transparent">
         <div className="font-display font-black text-sm tracking-widest text-gold-2">
           Sandy<span className="text-gold">Q</span> <span className="text-gold/40 font-light">Urpa<span className="text-gold">Q</span></span>
         </div>
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
           <Link href="#features" className="font-mono text-[10px] tracking-widest uppercase text-parchment/40 hover:text-gold transition-colors">
             Возможности
@@ -59,6 +60,15 @@ export default async function HomePage() {
           </Link>
           <Link href="/register" className="btn-primary text-[11px] px-5 py-2.5">
             Запустить семейный кабинет
+          </Link>
+        </div>
+        {/* Mobile nav */}
+        <div className="flex md:hidden items-center gap-3">
+          <Link href="/login" className="font-mono text-[10px] tracking-widest uppercase text-parchment/40 hover:text-gold transition-colors">
+            Войти
+          </Link>
+          <Link href="/register" className="btn-primary text-[10px] px-3 py-2">
+            Кабинет
           </Link>
         </div>
       </nav>
@@ -92,18 +102,18 @@ export default async function HomePage() {
         </p>
 
         {/* Stats */}
-        <div className="flex gap-12 mb-16 animate-fade-up animate-delay-300">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-16 animate-fade-up animate-delay-300">
           {[
             { num: stats.participants.toLocaleString('ru'), label: 'Хранителей' },
             { num: stats.ancestors.toLocaleString('ru'), label: 'Персон в деревьях' },
             { num: '7+', label: 'Поколений в глубину' },
           ].map((s) => (
-            <div key={s.label} className="text-center">
+            <div key={s.label} className="text-center min-w-[80px]">
               <span className="font-display font-black text-gold-2 block"
-                    style={{ fontSize: 'clamp(28px, 4vw, 52px)' }}>
+                    style={{ fontSize: 'clamp(24px, 4vw, 52px)' }}>
                 {s.num}
               </span>
-              <span className="font-mono text-[10px] tracking-[2px] uppercase text-parchment/40 mt-1 block">
+              <span className="font-mono text-[9px] md:text-[10px] tracking-[2px] uppercase text-parchment/40 mt-1 block">
                 {s.label}
               </span>
             </div>
@@ -189,8 +199,9 @@ export default async function HomePage() {
           </div>
 
           <div className="text-center mt-16">
-            <Link href="/register" className="btn-primary">
-              Открыть семейный кабинет
+            <Link href="/register" className="btn-primary text-[10px] md:text-xs px-6 md:px-8">
+              <span className="hidden sm:inline">Открыть семейный кабинет</span>
+              <span className="sm:hidden">Открыть кабинет</span>
             </Link>
           </div>
         </div>
