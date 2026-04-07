@@ -47,7 +47,7 @@ function buildKaspiUrl(orderId: string, userId: string, appUrl: string): URL {
   url.searchParams.set('MerchantId', process.env.KASPI_MERCHANT_ID!)
   url.searchParams.set('OrderId', orderId)
   url.searchParams.set('Amount', AMOUNT.toString())
-  url.searchParams.set('Service', 'Сандық Ұрпақ — семейный кабинет')
+  url.searchParams.set('Service', 'SandyQ UrpaQ — семейный кабинет')
   url.searchParams.set('ReturnUrl', `${appUrl}/api/payment/callback`)
   url.searchParams.set('FailUrl', `${appUrl}/dashboard?payment=failed`)
   url.searchParams.set('Comment', `Активация кабинета #${userId.slice(0, 8)}`)

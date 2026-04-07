@@ -45,7 +45,7 @@ export default async function HomePage() {
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5
                       bg-gradient-to-b from-ink/95 to-transparent">
         <div className="font-display font-black text-sm tracking-widest text-gold-2">
-          САНДЫҚ <span className="text-gold/40 font-light">ҰРПАҚ</span>
+          Sandy<span className="text-gold">Q</span> <span className="text-gold/40 font-light">Urpa<span className="text-gold">Q</span></span>
         </div>
         <div className="hidden md:flex items-center gap-8">
           <Link href="#features" className="font-mono text-[10px] tracking-widest uppercase text-parchment/40 hover:text-gold transition-colors">
@@ -78,8 +78,8 @@ export default async function HomePage() {
 
         <h1 className="font-display font-black text-parchment leading-none mb-4 animate-fade-up animate-delay-100"
             style={{ fontSize: 'clamp(48px, 10vw, 120px)' }}>
-          САНДЫҚ<br />
-          <span className="text-gold-2">ҰРПАҚ</span>
+          Sandy<span className="text-gold">Q</span><br />
+          <span className="text-gold-2">Urpa<span className="text-gold brightness-125">Q</span></span>
         </h1>
 
         <p className="font-display font-light text-gold tracking-[8px] uppercase text-sm mb-8 animate-fade-up animate-delay-200">
@@ -199,7 +199,7 @@ export default async function HomePage() {
       {/* FOOTER */}
       <footer className="border-t border-[rgba(245,237,216,0.08)] py-8 px-6 text-center">
         <div className="font-display font-black text-gold-2/60 text-xs tracking-widest mb-2">
-          САНДЫҚ ҰРПАҚ
+          SandyQ UrpaQ
         </div>
         <p className="font-mono text-[10px] text-parchment/20 tracking-widest">
           © 2026 · Казахстан · Платформа семейной памяти и цифровой шежіре

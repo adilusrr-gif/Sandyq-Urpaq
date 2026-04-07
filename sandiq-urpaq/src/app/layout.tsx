@@ -28,21 +28,21 @@ const monoFont = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://sandiq-urpaq.vercel.app'),
   title: {
-    default: 'Сандық Ұрпақ',
-    template: '%s | Сандық Ұрпақ',
+    default: 'SandyQ UrpaQ',
+    template: '%s | SandyQ UrpaQ',
   },
   description: 'Платформа для семейной памяти: дерево рода, истории, голоса близких и цифровая шежіре в одном месте.',
   keywords: ['Казахстан', 'родословная', 'шежіре', 'генеалогия', 'история семьи', 'семейный архив'],
-  applicationName: 'Сандық Ұрпақ',
+  applicationName: 'SandyQ UrpaQ',
   openGraph: {
-    title: 'Сандық Ұрпақ',
+    title: 'SandyQ UrpaQ',
     description: 'Соберите семейное дерево, сохраните воспоминания и передайте историю рода дальше.',
     locale: 'ru_KZ',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Сандық Ұрпақ',
+    title: 'SandyQ UrpaQ',
     description: 'Цифровая шежіре для семьи, которая хочет сохранить свою историю красиво и бережно.',
   },
 }

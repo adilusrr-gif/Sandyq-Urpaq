@@ -33,11 +33,11 @@ export default function CertificateClient({ profile }: Props) {
     }
   }
 
-  const shareText = `Я стал хранителем культуры Казахстана #${profile.participant_num?.toLocaleString('ru')} на платформе Сандық Ұрпақ! Сохрани историю своей семьи → sandiq.kz`
+  const shareText = `Я стал хранителем культуры Казахстана #${profile.participant_num?.toLocaleString('ru')} на платформе SandyQ UrpaQ! Сохрани историю своей семьи → sandiq.kz`
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title: 'Сандық Ұрпақ', text: shareText, url: 'https://sandiq.kz' })
+      await navigator.share({ title: 'SandyQ UrpaQ', text: shareText, url: 'https://sandiq.kz' })
     } else {
       await navigator.clipboard.writeText(shareText)
       toast.success('Скопировано в буфер!')
@@ -86,7 +86,7 @@ export default function CertificateClient({ profile }: Props) {
         <div className="relative z-10">
           {/* Logo */}
           <div className="font-display font-black text-gold tracking-[4px] text-sm mb-1">
-            САНДЫҚ ҰРПАҚ
+            SandyQ UrpaQ
           </div>
           <div className="font-body italic text-ink/50 text-sm mb-4">
             Цифровое Поколение · Казахстан

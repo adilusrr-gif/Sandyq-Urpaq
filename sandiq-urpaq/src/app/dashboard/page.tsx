@@ -61,7 +61,7 @@ export default async function DashboardPage({
       {/* Header */}
       <header className="border-b border-[rgba(245,237,216,0.08)] px-8 py-5 flex items-center justify-between">
         <div className="font-display font-black text-gold-2 text-sm tracking-widest">
-          САНДЫҚ <span className="text-gold/40 font-light">ҰРПАҚ</span>
+          Sandy<span className="text-gold">Q</span> <span className="text-gold/40 font-light">Urpa<span className="text-gold">Q</span></span>
         </div>
         <div className="flex items-center gap-6">
           <span className="font-body italic text-parchment/40 text-base">
