@@ -101,7 +101,7 @@ export default function LoginPage() {
       <p className="font-mono text-[10px] text-parchment/30 text-center mt-6 tracking-widest">
         Нет аккаунта?{' '}
         <Link href="/register" className="text-gold hover:text-gold-2 transition-colors">
-          Зарегистрироваться — 500 ₸
+          Зарегистрироваться 
         </Link>
       </p>
     </div>
