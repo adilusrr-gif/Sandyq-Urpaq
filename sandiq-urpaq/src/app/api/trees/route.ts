@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { ensureUserProfile } from '@/lib/supabase/profiles'
 import { generateInviteCode } from '@/lib/utils'
 import { treeSchema } from '@/lib/validations'
 
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
     }
 
     const admin = createAdminClient() as any
+    await ensureUserProfile(admin, user)
     const invite_code = generateInviteCode()
 
     const { data: tree, error: treeError } = await admin
@@ -49,12 +51,12 @@ export async function POST(request: Request) {
 
     const { error: memberError } = await admin
       .from('tree_members')
-      .insert({
+      .upsert({
         tree_id: tree.id,
         user_id: user.id,
         role: 'owner',
         invited_by: user.id,
-      })
+      }, { onConflict: 'tree_id,user_id', ignoreDuplicates: true })
 
     if (memberError) {
       await admin.from('family_trees').delete().eq('id', tree.id)

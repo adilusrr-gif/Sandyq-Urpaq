@@ -1,50 +1,96 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
+const AMOUNT = 500
+
 function getAppUrl(request: NextRequest) {
   return process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin
 }
 
-async function completePayment(userId: string) {
+function hasKaspiCredentials() {
+  return Boolean(process.env.KASPI_MERCHANT_ID && process.env.KASPI_SECRET)
+}
+
+async function markPaymentStatus(orderId: string, status: 'completed' | 'failed') {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Не настроен service role ключ Supabase.')
+    throw new Error('РќРµ РЅР°СЃС‚СЂРѕРµРЅ service role РєР»СЋС‡ Supabase.')
   }
 
   const admin = createAdminClient() as any
+  await admin
+    .from('payments')
+    .update({
+      status,
+      completed_at: status === 'completed' ? new Date().toISOString() : null,
+    })
+    .eq('order_id', orderId)
+    .neq('status', 'completed')
+}
+
+async function completePayment(orderId: string) {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('РќРµ РЅР°СЃС‚СЂРѕРµРЅ service role РєР»СЋС‡ Supabase.')
+  }
+
+  const admin = createAdminClient() as any
+  const { data: payment } = await admin
+    .from('payments')
+    .select('id, user_id, amount, status')
+    .eq('order_id', orderId)
+    .maybeSingle()
+
+  if (!payment) {
+    throw new Error('Платёж не найден.')
+  }
+
+  if (payment.amount < AMOUNT) {
+    throw new Error('Недостаточная сумма платежа.')
+  }
+
   const { data: user } = await admin
     .from('users')
     .select('paid_at, participant_num')
-    .eq('id', userId)
+    .eq('id', payment.user_id)
     .single()
 
   if (!user) {
-    throw new Error('Пользователь не найден.')
+    throw new Error('РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ.')
   }
 
   if (user.paid_at) {
+    await markPaymentStatus(orderId, 'completed')
     return { status: 'already' as const, participantNum: user.participant_num }
   }
 
-  const { data: maxUser } = await admin
+  const paidAt = new Date().toISOString()
+  const { data: updatedUser, error: updateError } = await admin
     .from('users')
+    .update({ paid_at: paidAt })
+    .eq('id', payment.user_id)
+    .is('paid_at', null)
     .select('participant_num')
-    .not('participant_num', 'is', null)
-    .order('participant_num', { ascending: false })
-    .limit(1)
     .maybeSingle()
 
-  const nextNum = (maxUser?.participant_num ?? 0) + 1
+  if (updateError) {
+    throw updateError
+  }
 
-  await admin
+  const { data: freshUser, error: freshUserError } = await admin
     .from('users')
-    .update({
-      paid_at: new Date().toISOString(),
-      participant_num: nextNum,
-    })
-    .eq('id', userId)
-    .is('paid_at', null)
+    .select('participant_num, paid_at')
+    .eq('id', payment.user_id)
+    .single()
 
-  return { status: 'success' as const, participantNum: nextNum }
+  if (freshUserError) {
+    throw freshUserError
+  }
+
+  await markPaymentStatus(orderId, 'completed')
+
+  return {
+    status: updatedUser ? 'success' as const : 'already' as const,
+    participantNum: updatedUser?.participant_num ?? freshUser?.participant_num ?? null,
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -52,18 +98,22 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const orderId = searchParams.get('OrderId')
   const status = searchParams.get('Status')
-  const userId = orderId?.split('_')[1]
 
-  if (!orderId || !userId) {
+  if (!orderId) {
     return NextResponse.redirect(new URL('/dashboard?payment=error', appUrl))
   }
 
   if (status !== 'SUCCESS') {
+    await markPaymentStatus(orderId, 'failed').catch(() => null)
     return NextResponse.redirect(new URL('/dashboard?payment=failed', appUrl))
   }
 
+  if (hasKaspiCredentials()) {
+    return NextResponse.redirect(new URL('/dashboard?payment=processing', appUrl))
+  }
+
   try {
-    const result = await completePayment(userId)
+    const result = await completePayment(orderId)
     const target = result.status === 'already'
       ? '/dashboard?payment=already'
       : `/dashboard?payment=success&num=${result.participantNum}`
@@ -81,13 +131,15 @@ export async function POST(request: NextRequest) {
     const orderId = typeof body.OrderId === 'string' ? body.OrderId : null
     const status = typeof body.Status === 'string' ? body.Status : null
     const amount = Number(body.Amount)
-    const userId = orderId?.split('_')[1]
 
-    if (!orderId || !userId || status !== 'SUCCESS' || amount < 500) {
+    if (!orderId || status !== 'SUCCESS' || amount < AMOUNT) {
+      if (orderId) {
+        await markPaymentStatus(orderId, 'failed').catch(() => null)
+      }
       return NextResponse.json({ code: 1, message: 'Invalid payment' })
     }
 
-    await completePayment(userId)
+    await completePayment(orderId)
 
     return NextResponse.json({ code: 0, message: 'OK' })
   } catch {

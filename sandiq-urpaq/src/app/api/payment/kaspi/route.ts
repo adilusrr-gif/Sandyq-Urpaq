@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { ensureUserProfile } from '@/lib/supabase/profiles'
 
 const AMOUNT = 500
 
@@ -13,6 +14,11 @@ function hasKaspiCredentials() {
 
 export async function GET(request: NextRequest) {
   const appUrl = getAppUrl(request)
+
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.redirect(new URL('/dashboard?payment=error', appUrl))
+  }
+
   const supabase = createClient() as any
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -20,17 +26,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', appUrl))
   }
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('paid_at')
-    .eq('id', user.id)
-    .single()
+  const admin = createAdminClient() as any
+  const profile = await ensureUserProfile(admin, user)
 
   if (profile?.paid_at) {
     return NextResponse.redirect(new URL('/dashboard?already_paid=true', appUrl))
   }
 
-  const orderId = `sandiq_${user.id}_${Date.now()}`
+  const orderId = `sandiq_${crypto.randomUUID()}`
+  const { error: paymentError } = await admin
+    .from('payments')
+    .insert({
+      user_id: user.id,
+      order_id: orderId,
+      amount: AMOUNT,
+      status: 'pending',
+      provider: hasKaspiCredentials() ? 'kaspi' : 'demo',
+    })
+
+  if (paymentError) {
+    return NextResponse.redirect(new URL('/dashboard?payment=error', appUrl))
+  }
 
   if (!hasKaspiCredentials()) {
     return NextResponse.redirect(
@@ -47,9 +63,9 @@ function buildKaspiUrl(orderId: string, userId: string, appUrl: string): URL {
   url.searchParams.set('MerchantId', process.env.KASPI_MERCHANT_ID!)
   url.searchParams.set('OrderId', orderId)
   url.searchParams.set('Amount', AMOUNT.toString())
-  url.searchParams.set('Service', 'Сандық Ұрпақ — семейный кабинет')
+  url.searchParams.set('Service', 'РЎР°РЅРґС‹Т› Т°СЂРїР°Т› вЂ” СЃРµРјРµР№РЅС‹Р№ РєР°Р±РёРЅРµС‚')
   url.searchParams.set('ReturnUrl', `${appUrl}/api/payment/callback`)
   url.searchParams.set('FailUrl', `${appUrl}/dashboard?payment=failed`)
-  url.searchParams.set('Comment', `Активация кабинета #${userId.slice(0, 8)}`)
+  url.searchParams.set('Comment', `РђРєС‚РёРІР°С†РёСЏ РєР°Р±РёРЅРµС‚Р° #${userId.slice(0, 8)}`)
   return url
 }

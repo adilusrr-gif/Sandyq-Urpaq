@@ -2,10 +2,20 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
+function isAdminUser(email?: string | null) {
+  const allowedEmails = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+
+  return Boolean(email && allowedEmails.includes(email.toLowerCase()))
+}
+
 export default async function AdminPage() {
   const supabase = createClient() as any
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+  if (!isAdminUser(user.email)) redirect('/dashboard')
 
   const admin = createAdminClient() as any
 

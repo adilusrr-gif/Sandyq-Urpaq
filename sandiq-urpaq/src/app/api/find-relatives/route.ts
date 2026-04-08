@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       family_trees!inner(id, name, default_visibility, owner_user_id)
     `)
     .eq('family_trees.default_visibility', 'public') // Only public trees
+    .eq('visibility', 'public')
     .neq('family_trees.owner_user_id', user.id)      // Not own trees
     .limit(20)
 

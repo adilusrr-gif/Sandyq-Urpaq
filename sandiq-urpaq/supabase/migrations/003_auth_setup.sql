@@ -1,42 +1,31 @@
--- ════════════════════════════════════════════
--- SUPABASE AUTH НАСТРОЙКА
--- Выполните в Supabase Dashboard
--- ════════════════════════════════════════════
+-- Supabase Auth setup
+-- Run after 001_initial.sql and 002_payments.sql
 
--- ── ВАЖНО: Отключите Email Confirmation ──
--- Supabase Dashboard → Authentication → Providers → Email
--- → "Confirm email" = OFF  (для быстрой регистрации без подтверждения)
--- → "Secure email change" = ON
--- → "Double confirm changes" = OFF
-
--- ── URL Configuration ──
--- Authentication → URL Configuration:
--- Site URL: https://YOUR_APP.vercel.app
--- Redirect URLs (добавьте все):
---   https://YOUR_APP.vercel.app/**
---   http://localhost:3000/**
-
--- ── Auto-create user profile on signup ──
--- Этот триггер создаёт запись в public.users автоматически
--- при регистрации через Supabase Auth
+-- In Supabase Dashboard:
+-- Authentication -> Providers -> Email -> Confirm email = OFF
+-- Authentication -> URL Configuration -> add your production URL and localhost
 
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
-security definer set search_path = public
+security definer
+set search_path = public
 as $$
 begin
-  insert into public.users (id, full_name)
+  insert into public.users (id, full_name, tribe_zhuz)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', 'Хранитель')
+    coalesce(new.raw_user_meta_data->>'full_name', 'Хранитель'),
+    nullif(new.raw_user_meta_data->>'tribe_zhuz', '')
   )
   on conflict (id) do nothing;
+
   return new;
 end;
 $$;
 
 drop trigger if exists on_auth_user_created on auth.users;
+
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();

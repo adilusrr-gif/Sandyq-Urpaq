@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { ensureUserProfile } from '@/lib/supabase/profiles'
 
 export async function POST(
   request: Request,
@@ -24,6 +25,7 @@ export async function POST(
     const inviteCode = typeof body.inviteCode === 'string' ? body.inviteCode.toUpperCase() : null
 
     const admin = createAdminClient() as any
+    await ensureUserProfile(admin, user)
     const { data: tree } = await admin
       .from('family_trees')
       .select('id, owner_user_id, invite_code')
@@ -51,12 +53,12 @@ export async function POST(
 
     const { error } = await admin
       .from('tree_members')
-      .insert({
+      .upsert({
         tree_id: params.id,
         user_id: user.id,
         role: 'viewer',
         invited_by: tree.owner_user_id,
-      })
+      }, { onConflict: 'tree_id,user_id', ignoreDuplicates: true })
 
     if (error) {
       throw error

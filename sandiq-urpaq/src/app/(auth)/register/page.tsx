@@ -35,7 +35,10 @@ export default function RegisterPage() {
         email: data.email,
         password: data.password,
         options: {
-          data: { full_name: data.full_name },
+          data: {
+            full_name: data.full_name,
+            tribe_zhuz: data.tribe_zhuz?.trim() || null,
+          },
           emailRedirectTo: `${window.location.origin}/login`,
         },
       })
@@ -52,20 +55,6 @@ export default function RegisterPage() {
 
       if (!authData.user) {
         throw new Error('Не удалось создать аккаунт')
-      }
-
-      const { error: profileError } = await supabase.from('users').insert({
-        id: authData.user.id,
-        full_name: data.full_name,
-        tribe_zhuz: data.tribe_zhuz?.trim() || null,
-      })
-
-      if (
-        profileError &&
-        !profileError.message.toLowerCase().includes('duplicate') &&
-        !profileError.message.toLowerCase().includes('unique')
-      ) {
-        throw profileError
       }
 
       if (authData.session) {

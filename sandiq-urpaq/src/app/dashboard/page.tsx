@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { ensureUserProfile } from '@/lib/supabase/profiles'
 
 export default async function DashboardPage({
   searchParams,
@@ -24,31 +25,18 @@ export default async function DashboardPage({
 
   let profile = fetchedProfile
   if (!profile) {
-    const fallbackProfile = {
-      id: user.id,
-      full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'Хранитель',
-      paid_at: null,
-      participant_num: null,
-      tribe_zhuz: null,
-    }
-
-    const { data: createdProfile, error: profileError } = await supabase
-      .from('users')
-      .insert({
+    try {
+      profile = await ensureUserProfile(supabase, user)
+    } catch {
+      profile = {
         id: user.id,
-        full_name: fallbackProfile.full_name,
-      })
-      .select('*')
-      .single()
-
-    profile = createdProfile ?? fallbackProfile
-
-    if (
-      profileError &&
-      !profileError.message.toLowerCase().includes('duplicate') &&
-      !profileError.message.toLowerCase().includes('unique')
-    ) {
-      profile = fallbackProfile
+        full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'Хранитель',
+        paid_at: null,
+        participant_num: null,
+        tribe_zhuz: typeof user.user_metadata?.tribe_zhuz === 'string'
+          ? user.user_metadata.tribe_zhuz
+          : null,
+      }
     }
   }
 

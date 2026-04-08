@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   const supabase = createClient() as any
@@ -37,10 +37,28 @@ export async function POST(req: NextRequest) {
 
     // Save transcript to memory
     if (memoryId) {
-      await supabase
+      const { data: accessibleMemory } = await supabase
+        .from('memories')
+        .eq('id', memoryId)
+        .select('id')
+        .maybeSingle()
+
+      if (!accessibleMemory) {
+        return NextResponse.json({ error: 'Memory not found' }, { status: 404 })
+      }
+
+      const writer = process.env.SUPABASE_SERVICE_ROLE_KEY
+        ? (createAdminClient() as any)
+        : supabase
+
+      const { error: updateError } = await writer
         .from('memories')
         .update({ transcript, moderation_status: 'approved' })
         .eq('id', memoryId)
+
+      if (updateError) {
+        throw updateError
+      }
     }
 
     return NextResponse.json({ transcript, duration: result.duration })

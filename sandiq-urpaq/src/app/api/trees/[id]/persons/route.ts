@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { NextResponse } from 'next/server'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { ensureUserProfile } from '@/lib/supabase/profiles'
 import { personSchema } from '@/lib/validations'
 
 const createPersonSchema = personSchema.extend({
@@ -38,6 +39,7 @@ export async function POST(
     }
 
     const admin = createAdminClient() as any
+    await ensureUserProfile(admin, user)
     const { data: tree } = await admin
       .from('family_trees')
       .select('id, owner_user_id')
@@ -90,13 +92,13 @@ export async function POST(
           .eq('tree_id', params.id)
           .eq('user_id', user.id)
       } else {
-        await admin.from('tree_members').insert({
+        await admin.from('tree_members').upsert({
           tree_id: params.id,
           user_id: user.id,
           role: 'owner',
           invited_by: user.id,
           linked_person_id: person.id,
-        })
+        }, { onConflict: 'tree_id,user_id', ignoreDuplicates: true })
       }
     }
 
