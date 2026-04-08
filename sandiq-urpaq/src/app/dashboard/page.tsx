@@ -16,11 +16,41 @@ export default async function DashboardPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: profile }, { data: memberTrees }, { data: ownedTrees }] = await Promise.all([
+  const [{ data: fetchedProfile }, { data: memberTrees }, { data: ownedTrees }] = await Promise.all([
     supabase.from('users').select('*').eq('id', user.id).single(),
     supabase.from('family_trees').select('*, tree_members!inner(user_id)').eq('tree_members.user_id', user.id),
     supabase.from('family_trees').select('*').eq('owner_user_id', user.id),
   ])
+
+  let profile = fetchedProfile
+  if (!profile) {
+    const fallbackProfile = {
+      id: user.id,
+      full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'Хранитель',
+      paid_at: null,
+      participant_num: null,
+      tribe_zhuz: null,
+    }
+
+    const { data: createdProfile, error: profileError } = await supabase
+      .from('users')
+      .insert({
+        id: user.id,
+        full_name: fallbackProfile.full_name,
+      })
+      .select('*')
+      .single()
+
+    profile = createdProfile ?? fallbackProfile
+
+    if (
+      profileError &&
+      !profileError.message.toLowerCase().includes('duplicate') &&
+      !profileError.message.toLowerCase().includes('unique')
+    ) {
+      profile = fallbackProfile
+    }
+  }
 
   const treesMap = new Map<string, any>()
   ;[...(memberTrees ?? []), ...(ownedTrees ?? [])].forEach((tree) => {

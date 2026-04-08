@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0C0A06"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)" opacity="0.3"/>
+  <defs>
+    <radialGradient id="grad" cx="50%" cy="60%">
+      <stop offset="0%" stop-color="#C8972A" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0C0A06" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <text x="600" y="260" font-size="80" text-anchor="middle" fill="#C8972A" font-family="serif" font-weight="bold">🌾</text>
+  <text x="600" y="360" font-size="64" text-anchor="middle" fill="#F5EDD8" font-family="sans-serif" font-weight="900">САНДЫҚ ҰРПАҚ</text>
+  <text x="600" y="420" font-size="24" text-anchor="middle" fill="#8A7A60" font-family="monospace" letter-spacing="8">ЦИФРОВОЕ ПОКОЛЕНИЕ</text>
+  <text x="600" y="500" font-size="20" text-anchor="middle" fill="#C8972A" font-family="monospace">500 ₸ · sandiq.kz</text>
+</svg>

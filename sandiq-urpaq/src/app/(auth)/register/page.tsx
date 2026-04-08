@@ -30,35 +30,55 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const supabase = createClient() as any
-      const birthYear = Number.isFinite(data.birth_year as number) ? data.birth_year : null
 
-      // 1. Create Supabase auth user (email = phone@sandiq.kz workaround)
-      const email = `${data.phone.replace(/\D/g, '')}@sandiq.kz`
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: data.email,
         password: data.password,
-        options: { data: { full_name: data.full_name, phone: data.phone } },
+        options: {
+          data: { full_name: data.full_name },
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
       })
 
-      if (authError) throw authError
+      if (authError) {
+        if (authError.message.includes('already registered')) {
+          throw new Error('Этот email уже зарегистрирован. Попробуйте войти.')
+        }
+        if (authError.message.includes('Password should be')) {
+          throw new Error('Пароль слишком простой. Используйте не меньше 8 символов.')
+        }
+        throw authError
+      }
 
-      // 2. Create user profile
+      if (!authData.user) {
+        throw new Error('Не удалось создать аккаунт')
+      }
+
       const { error: profileError } = await supabase.from('users').insert({
-        id: authData.user!.id,
+        id: authData.user.id,
         full_name: data.full_name,
-        phone: data.phone,
-        birth_year: birthYear,
         tribe_zhuz: data.tribe_zhuz?.trim() || null,
       })
 
-      if (profileError) throw profileError
+      if (
+        profileError &&
+        !profileError.message.toLowerCase().includes('duplicate') &&
+        !profileError.message.toLowerCase().includes('unique')
+      ) {
+        throw profileError
+      }
 
-      toast.success('Аккаунт создан. Можно переходить к дереву.')
+      if (authData.session) {
+        toast.success('Аккаунт создан. Можно переходить к дереву.')
 
-      if (inviteCode) {
-        router.push(`/join/${inviteCode}`)
+        if (inviteCode) {
+          router.push(`/join/${inviteCode}`)
+        } else {
+          router.push('/dashboard?onboarding=true')
+        }
       } else {
-        router.push('/dashboard?onboarding=true')
+        toast.success('Проверьте почту — письмо для входа уже отправлено.')
+        router.push('/login')
       }
     } catch (err: any) {
       toast.error(err.message ?? 'Ошибка регистрации')
@@ -80,7 +100,7 @@ export default function RegisterPage() {
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Имя</label>
             <input {...register('full_name')} className="input-field"
@@ -97,18 +117,12 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="label">Номер телефона</label>
-          <input {...register('phone')} className="input-field"
-                 type="tel" placeholder="+77001234567" />
-          {errors.phone && (
-            <p className="font-mono text-[10px] text-red-400 mt-1">{errors.phone.message}</p>
+          <label className="label">Email</label>
+          <input {...register('email')} className="input-field"
+                 type="email" placeholder="alibek@gmail.com" autoComplete="email" />
+          {errors.email && (
+            <p className="font-mono text-[10px] text-red-400 mt-1">{errors.email.message}</p>
           )}
-        </div>
-
-        <div>
-          <label className="label">Год рождения (необязательно)</label>
-          <input {...register('birth_year', { valueAsNumber: true })}
-                 className="input-field" type="number" placeholder="1990" />
         </div>
 
         <div>

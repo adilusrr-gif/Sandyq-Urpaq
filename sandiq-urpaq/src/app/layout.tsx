@@ -34,16 +34,24 @@ export const metadata: Metadata = {
   description: 'Платформа для семейной памяти: дерево рода, истории, голоса близких и цифровая шежіре в одном месте.',
   keywords: ['Казахстан', 'родословная', 'шежіре', 'генеалогия', 'история семьи', 'семейный архив'],
   applicationName: 'Сандық Ұрпақ',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
+  },
   openGraph: {
     title: 'Сандық Ұрпақ',
     description: 'Соберите семейное дерево, сохраните воспоминания и передайте историю рода дальше.',
     locale: 'ru_KZ',
     type: 'website',
+    images: ['/og-image.svg'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Сандық Ұрпақ',
     description: 'Цифровая шежіре для семьи, которая хочет сохранить свою историю красиво и бережно.',
+    images: ['/og-image.svg'],
   },
 }
 

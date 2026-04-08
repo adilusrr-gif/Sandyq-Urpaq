@@ -2,14 +2,13 @@ import { z } from 'zod'
 
 export const registerSchema = z.object({
   full_name: z.string().min(2, 'Минимум 2 символа').max(100),
-  phone: z.string().regex(/^\+7\d{10}$/, 'Формат: +77001234567'),
-  birth_year: z.number().min(1900).max(new Date().getFullYear()).optional(),
+  email: z.string().email('Введите корректный email'),
   tribe_zhuz: z.string().max(100).optional(),
   password: z.string().min(8, 'Минимум 8 символов'),
 })
 
 export const loginSchema = z.object({
-  phone: z.string().min(1, 'Введите номер телефона'),
+  email: z.string().email('Введите корректный email'),
   password: z.string().min(1, 'Введите пароль'),
 })
 
