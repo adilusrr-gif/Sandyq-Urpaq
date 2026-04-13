@@ -13,11 +13,16 @@ export default function LoginPage() {
   const router = useRouter()
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+    console.log('[v0] handleLogin called')
     e.preventDefault()
     e.stopPropagation()
     
-    if (loading) return
+    if (loading) {
+      console.log('[v0] Already loading, returning')
+      return
+    }
     
+    console.log('[v0] Starting login process')
     setLoading(true)
     setError(null)
 
@@ -35,15 +40,20 @@ export default function LoginPage() {
     }
 
     try {
+      console.log('[v0] Creating Supabase client')
       const supabase = createClient()
       const email = `${cleanPhone}@example.com`
+      console.log('[v0] Attempting login with email:', email)
       
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
+      
+      console.log('[v0] Login response:', { hasSession: !!data?.session, error: authError?.message })
 
       if (authError) {
+        console.log('[v0] Auth error:', authError.message)
         if (authError.message.includes('Invalid login credentials')) {
           setError('Неверный телефон или пароль')
         } else {
@@ -54,9 +64,11 @@ export default function LoginPage() {
       }
 
       // Success - redirect to dashboard
+      console.log('[v0] Login successful, redirecting to dashboard')
       router.push('/dashboard')
       router.refresh()
     } catch (err) {
+      console.log('[v0] Catch block error:', err)
       const message = err instanceof Error ? err.message : 'Произошла ошибка'
       setError(message)
       setLoading(false)
