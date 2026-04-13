@@ -120,7 +120,14 @@ export default function LoginPage() {
         Продолжайте собирать семейную историю там, где остановились
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+      <form 
+        method="POST" 
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmit(onSubmit)(e)
+        }} 
+        className="space-y-4 sm:space-y-5"
+      >
         <div>
           <label className="label">Номер телефона</label>
           <input 

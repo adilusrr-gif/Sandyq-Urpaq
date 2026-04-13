@@ -139,7 +139,14 @@ export default function RegisterPage() {
         Один красивый профиль, чтобы хранить дерево рода, истории и голос семьи
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+      <form 
+        method="POST"
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmit(onSubmit)(e)
+        }} 
+        className="space-y-4 sm:space-y-5"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="label">Имя</label>
