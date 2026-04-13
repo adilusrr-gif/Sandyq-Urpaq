@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
@@ -12,7 +11,6 @@ import { AUTH_CONFIG, getErrorMessage, ERROR_MESSAGES } from '@/lib/config'
 import { logger } from '@/lib/logger'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [redirectPath, setRedirectPath] = useState('/dashboard')
   const lastSubmitRef = useRef<number>(0)
@@ -70,8 +68,10 @@ export default function LoginPage() {
       const { data: { user } } = await supabase.auth.getUser()
       logger.auth.loginSuccess(user?.id || 'unknown')
       toast.success('Добро пожаловать!')
-      router.push(redirectPath)
-      router.refresh()
+      
+      // Use hard redirect to ensure session cookies are properly read
+      // router.push() doesn't always wait for cookies to be set
+      window.location.href = redirectPath
     } catch (err: any) {
       // Don't show error if request was aborted
       if (err?.name === 'AbortError') return
@@ -88,7 +88,7 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
-  }, [loading, redirectPath, router])
+  }, [loading, redirectPath])
 
   return (
     <div className="animate-fade-up">

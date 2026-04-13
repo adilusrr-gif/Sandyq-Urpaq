@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
@@ -12,7 +11,6 @@ import { PAYMENT_ENABLED, AUTH_CONFIG, getErrorMessage } from '@/lib/config'
 import { logger } from '@/lib/logger'
 
 export default function RegisterPage() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [inviteCode, setInviteCode] = useState<string | null>(null)
   const lastSubmitRef = useRef<number>(0)
@@ -88,10 +86,12 @@ export default function RegisterPage() {
       logger.auth.signupSuccess(authData.user!.id)
       toast.success('Аккаунт создан!')
 
+      // Use hard redirect to ensure session cookies are properly read
+      // router.push() doesn't always wait for cookies to be set
       if (inviteCode) {
-        router.push(`/join/${inviteCode}`)
+        window.location.href = `/join/${inviteCode}`
       } else {
-        router.push('/dashboard?onboarding=true')
+        window.location.href = '/dashboard?onboarding=true'
       }
     } catch (err: any) {
       // Don't show error if request was aborted
@@ -101,7 +101,7 @@ export default function RegisterPage() {
     } finally {
       setLoading(false)
     }
-  }, [loading, inviteCode, router])
+  }, [loading, inviteCode])
 
   return (
     <div className="animate-fade-up">
