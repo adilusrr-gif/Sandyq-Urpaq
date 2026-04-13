@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default async function TreePage({ params, searchParams }: Props) {
-  const supabase = createClient() as any
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 

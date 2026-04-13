@@ -7,7 +7,7 @@ import AddMemoryButton from '@/components/ancestor/AddMemoryButton'
 interface Props { params: { id: string } }
 
 export default async function AncestorPage({ params }: Props) {
-  const supabase = createClient() as any
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 

@@ -13,7 +13,7 @@ function hasKaspiCredentials() {
 
 export async function GET(request: NextRequest) {
   const appUrl = getAppUrl(request)
-  const supabase = createClient() as any
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {

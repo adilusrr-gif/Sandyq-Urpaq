@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import CertificateClient from './CertificateClient'
 
 export default async function CertificatePage() {
-  const supabase = createClient() as any
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 

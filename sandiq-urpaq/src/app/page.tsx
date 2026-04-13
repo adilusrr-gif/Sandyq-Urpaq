@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 
 async function getStats() {
   try {
-    const supabase = (process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : createClient()) as any
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : await createClient()
     const [{ count: usersCount }, { count: personsCount }] = await Promise.all([
       supabase.from('users').select('*', { count: 'exact', head: true }).not('paid_at', 'is', null),
       supabase.from('persons').select('*', { count: 'exact', head: true }),

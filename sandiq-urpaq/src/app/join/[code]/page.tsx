@@ -5,7 +5,7 @@ import JoinTreeClient from './JoinTreeClient'
 interface Props { params: { code: string } }
 
 export default async function JoinPage({ params }: Props) {
-  const supabase = createClient() as any
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const source = (process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : supabase) as any

@@ -23,8 +23,12 @@ export default function RegisterPage() {
     if (invite) setInviteCode(invite)
   }, [])
 
-  const handleRegister = async (e: React.FormEvent) => {
+  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    e.stopPropagation()
+    
+    if (loading) return
+    
     setLoading(true)
     setError(null)
 
@@ -67,11 +71,13 @@ export default function RegisterPage() {
         } else {
           setError(authError.message)
         }
+        setLoading(false)
         return
       }
 
       if (!authData.user) {
         setError('Не удалось создать аккаунт. Попробуйте еще раз.')
+        setLoading(false)
         return
       }
 
@@ -88,6 +94,7 @@ export default function RegisterPage() {
 
       if (profileError) {
         setError('Ошибка создания профиля: ' + profileError.message)
+        setLoading(false)
         return
       }
 
@@ -98,9 +105,9 @@ export default function RegisterPage() {
         router.push('/dashboard?onboarding=true')
       }
       router.refresh()
-    } catch (err: any) {
-      setError(err?.message || 'Произошла ошибка. Попробуйте еще раз.')
-    } finally {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Произошла ошибка'
+      setError(message)
       setLoading(false)
     }
   }
@@ -120,8 +127,10 @@ export default function RegisterPage() {
       <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label">Имя</label>
+            <label htmlFor="fullName" className="label">Имя</label>
             <input 
+              id="fullName"
+              name="fullName"
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -133,8 +142,10 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="label">Жуз / Регион</label>
+            <label htmlFor="tribeZhuz" className="label">Жуз / Регион</label>
             <input 
+              id="tribeZhuz"
+              name="tribeZhuz"
               type="text"
               value={tribeZhuz}
               onChange={(e) => setTribeZhuz(e.target.value)}
@@ -146,8 +157,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="label">Номер телефона</label>
+          <label htmlFor="phone" className="label">Номер телефона</label>
           <input 
+            id="phone"
+            name="phone"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -160,8 +173,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="label">Год рождения (необязательно)</label>
+          <label htmlFor="birthYear" className="label">Год рождения (необязательно)</label>
           <input 
+            id="birthYear"
+            name="birthYear"
             type="number"
             value={birthYear}
             onChange={(e) => setBirthYear(e.target.value)}
@@ -172,8 +187,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="label">Пароль</label>
+          <label htmlFor="password" className="label">Пароль</label>
           <input 
+            id="password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -222,7 +239,7 @@ export default function RegisterPage() {
               </svg>
               Создаём аккаунт...
             </span>
-          ) : 'Создать аккаунт →'}
+          ) : 'Создать аккаунт'}
         </button>
       </form>
 

@@ -12,8 +12,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    e.stopPropagation()
+    
+    if (loading) return
+    
     setLoading(true)
     setError(null)
 
@@ -45,15 +49,16 @@ export default function LoginPage() {
         } else {
           setError(authError.message)
         }
+        setLoading(false)
         return
       }
 
       // Success - redirect to dashboard
       router.push('/dashboard')
       router.refresh()
-    } catch (err: any) {
-      setError(err?.message || 'Произошла ошибка. Попробуйте еще раз.')
-    } finally {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Произошла ошибка'
+      setError(message)
       setLoading(false)
     }
   }
@@ -69,8 +74,10 @@ export default function LoginPage() {
 
       <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
         <div>
-          <label className="label">Номер телефона</label>
+          <label htmlFor="phone" className="label">Номер телефона</label>
           <input 
+            id="phone"
+            name="phone"
             type="tel" 
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -83,8 +90,10 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label className="label">Пароль</label>
+          <label htmlFor="password" className="label">Пароль</label>
           <input 
+            id="password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -115,7 +124,7 @@ export default function LoginPage() {
               </svg>
               Входим...
             </span>
-          ) : 'Войти →'}
+          ) : 'Войти'}
         </button>
       </form>
 
