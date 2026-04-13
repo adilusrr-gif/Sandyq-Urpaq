@@ -1,133 +1,109 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { registerSchema, type RegisterInput } from '@/lib/validations'
-import { PAYMENT_ENABLED, AUTH_CONFIG, getErrorMessage } from '@/lib/config'
-import { logger } from '@/lib/logger'
+import { PAYMENT_ENABLED } from '@/lib/config'
 
 export default function RegisterPage() {
+  const [fullName, setFullName] = useState('')
+  const [tribeZhuz, setTribeZhuz] = useState('')
+  const [phone, setPhone] = useState('')
+  const [birthYear, setBirthYear] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [inviteCode, setInviteCode] = useState<string | null>(null)
-  const lastSubmitRef = useRef<number>(0)
-  const abortControllerRef = useRef<AbortController | null>(null)
-
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
-  })
+  const router = useRouter()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const invite = params.get('invite')
-    if (invite) {
-      setInviteCode(invite)
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      abortControllerRef.current?.abort()
-    }
+    if (invite) setInviteCode(invite)
   }, [])
 
-  const onSubmit = useCallback(async (data: RegisterInput) => {
-    // Prevent double submission
-    if (loading) return
-    
-    // Rate limit protection - min 3 seconds between attempts
-    const now = Date.now()
-    if (now - lastSubmitRef.current < AUTH_CONFIG.MIN_AUTH_INTERVAL_MS) {
-      logger.rateLimit.hit('signup')
-      toast.error('Подождите несколько секунд перед повторной попыткой')
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    // Validate inputs
+    if (!fullName.trim()) {
+      setError('Введите ваше имя')
+      setLoading(false)
       return
     }
-    lastSubmitRef.current = now
     
-    logger.auth.signupAttempt(data.phone)
+    const cleanPhone = phone.replace(/\D/g, '')
+    if (cleanPhone.length < 10) {
+      setError('Введите корректный номер телефона')
+      setLoading(false)
+      return
+    }
     
-    // Abort any pending request
-    abortControllerRef.current?.abort()
-    abortControllerRef.current = new AbortController()
-    
-    setLoading(true)
-    const supabase = createClient() as any
-    
-    try {
-      const birthYear = Number.isFinite(data.birth_year as number) ? data.birth_year : null
+    if (password.length < 6) {
+      setError('Пароль должен быть не менее 6 символов')
+      setLoading(false)
+      return
+    }
 
-      // 1. Create Supabase auth user (email = phone@example.com workaround)
-      // Using example.com as it's a reserved domain that passes email validation
-      const email = `${data.phone.replace(/\D/g, '')}@example.com`
-      console.log('[v0] Attempting signup with email:', email)
+    try {
+      const supabase = createClient()
+      const email = `${cleanPhone}@example.com`
       
+      // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
-        password: data.password,
-        options: { 
-          data: { full_name: data.full_name, phone: data.phone },
+        password,
+        options: {
+          data: { full_name: fullName, phone },
         },
       })
 
-      console.log('[v0] signUp result:', { 
-        hasSession: !!authData?.session,
-        hasUser: !!authData?.user,
-        userId: authData?.user?.id,
-        error: authError?.message 
-      })
-
       if (authError) {
-        console.log('[v0] Signup auth error:', authError.message)
-        throw authError
+        if (authError.message.includes('already registered')) {
+          setError('Этот номер телефона уже зарегистрирован')
+        } else {
+          setError(authError.message)
+        }
+        return
       }
-      
+
       if (!authData.user) {
-        console.log('[v0] No user returned from signup')
-        throw new Error('Не удалось создать аккаунт. Попробуйте еще раз.')
+        setError('Не удалось создать аккаунт. Попробуйте еще раз.')
+        return
       }
 
       // 2. Create user profile
-      console.log('[v0] Creating user profile for:', authData.user.id)
+      const birthYearNum = birthYear ? parseInt(birthYear) : null
       const { error: profileError } = await supabase.from('users').insert({
         id: authData.user.id,
-        full_name: data.full_name,
-        phone: data.phone,
-        birth_year: birthYear,
-        tribe_zhuz: data.tribe_zhuz?.trim() || null,
-        // If payments disabled, mark as paid immediately
+        full_name: fullName.trim(),
+        phone,
+        birth_year: birthYearNum && !isNaN(birthYearNum) ? birthYearNum : null,
+        tribe_zhuz: tribeZhuz.trim() || null,
         paid_at: PAYMENT_ENABLED ? null : new Date().toISOString(),
       })
 
       if (profileError) {
-        console.log('[v0] Profile creation error:', profileError.message)
-        throw profileError
+        setError('Ошибка создания профиля: ' + profileError.message)
+        return
       }
 
-      console.log('[v0] Profile created successfully')
-      logger.auth.signupSuccess(authData.user.id)
-      toast.success('Аккаунт создан!')
-
-      // Determine redirect path
-      const redirectTo = inviteCode ? `/join/${inviteCode}` : '/dashboard?onboarding=true'
-      console.log('[v0] Redirecting to:', redirectTo)
-      
-      // Small delay to ensure cookies are written before redirect
-      await new Promise(resolve => setTimeout(resolve, 100))
-      // Use hard redirect to ensure session cookies are properly read
-      window.location.href = redirectTo
+      // Success - redirect
+      if (inviteCode) {
+        router.push(`/join/${inviteCode}`)
+      } else {
+        router.push('/dashboard?onboarding=true')
+      }
+      router.refresh()
     } catch (err: any) {
-      console.log('[v0] Caught error:', err?.message, err)
-      
-      // Don't show error if request was aborted
-      if (err?.name === 'AbortError') return
-      logger.auth.signupError(err?.message || 'Unknown error')
-      toast.error(getErrorMessage(err))
+      setError(err?.message || 'Произошла ошибка. Попробуйте еще раз.')
     } finally {
       setLoading(false)
     }
-  }, [loading, inviteCode])
+  }
 
   return (
     <div className="animate-fade-up">
@@ -141,32 +117,27 @@ export default function RegisterPage() {
         Один красивый профиль, чтобы хранить дерево рода, истории и голос семьи
       </p>
 
-      <form 
-        method="POST"
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleSubmit(onSubmit)(e)
-        }} 
-        className="space-y-4 sm:space-y-5"
-      >
+      <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="label">Имя</label>
             <input 
-              {...register('full_name')} 
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="input-field text-base"
               placeholder="Алибек Сейтов"
               autoComplete="name"
               disabled={loading}
+              required
             />
-            {errors.full_name && (
-              <p className="font-mono text-[10px] text-red-400 mt-1">{errors.full_name.message}</p>
-            )}
           </div>
           <div>
             <label className="label">Жуз / Регион</label>
             <input 
-              {...register('tribe_zhuz')} 
+              type="text"
+              value={tribeZhuz}
+              onChange={(e) => setTribeZhuz(e.target.value)}
               className="input-field text-base"
               placeholder="Старший жуз"
               disabled={loading}
@@ -177,24 +148,24 @@ export default function RegisterPage() {
         <div>
           <label className="label">Номер телефона</label>
           <input 
-            {...register('phone')} 
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             className="input-field text-base"
-            type="tel" 
             placeholder="+77001234567"
             autoComplete="tel"
             disabled={loading}
+            required
           />
-          {errors.phone && (
-            <p className="font-mono text-[10px] text-red-400 mt-1">{errors.phone.message}</p>
-          )}
         </div>
 
         <div>
           <label className="label">Год рождения (необязательно)</label>
           <input 
-            {...register('birth_year', { valueAsNumber: true })}
-            className="input-field text-base" 
-            type="number" 
+            type="number"
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value)}
+            className="input-field text-base"
             placeholder="1990"
             disabled={loading}
           />
@@ -203,17 +174,22 @@ export default function RegisterPage() {
         <div>
           <label className="label">Пароль</label>
           <input 
-            {...register('password')} 
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="input-field text-base"
-            type="password" 
-            placeholder="Минимум 8 символов"
+            placeholder="Минимум 6 символов"
             autoComplete="new-password"
             disabled={loading}
+            required
           />
-          {errors.password && (
-            <p className="font-mono text-[10px] text-red-400 mt-1">{errors.password.message}</p>
-          )}
         </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+            <p className="font-mono text-sm text-red-400">{error}</p>
+          </div>
+        )}
 
         {/* Payment preview - only show if payments enabled */}
         {PAYMENT_ENABLED && (

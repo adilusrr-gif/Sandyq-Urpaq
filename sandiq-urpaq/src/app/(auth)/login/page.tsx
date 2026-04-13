@@ -1,117 +1,62 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { loginSchema, type LoginInput } from '@/lib/validations'
-import { AUTH_CONFIG, getErrorMessage, ERROR_MESSAGES } from '@/lib/config'
-import { logger } from '@/lib/logger'
 
 export default function LoginPage() {
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [redirectPath, setRedirectPath] = useState('/dashboard')
-  const lastSubmitRef = useRef<number>(0)
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const router = useRouter()
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
-  })
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const redirect = params.get('redirect')
-    if (redirect && redirect.startsWith('/')) {
-      setRedirectPath(redirect)
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      abortControllerRef.current?.abort()
-    }
-  }, [])
-
-  const onSubmit = useCallback(async (data: LoginInput) => {
-    // Prevent double submission
-    if (loading) return
-    
-    // Rate limit protection - min 3 seconds between attempts
-    const now = Date.now()
-    if (now - lastSubmitRef.current < AUTH_CONFIG.MIN_AUTH_INTERVAL_MS) {
-      logger.rateLimit.hit('login')
-      toast.error('Подождите несколько секунд перед повторной попыткой')
+    // Validate inputs
+    const cleanPhone = phone.replace(/\D/g, '')
+    if (cleanPhone.length < 10) {
+      setError('Введите корректный номер телефона')
+      setLoading(false)
       return
     }
-    lastSubmitRef.current = now
-    
-    logger.auth.loginAttempt(data.phone)
-    
-    // Abort any pending request
-    abortControllerRef.current?.abort()
-    abortControllerRef.current = new AbortController()
-    
-    setLoading(true)
-    const supabase = createClient()
-    
+    if (password.length < 6) {
+      setError('Пароль должен быть не менее 6 символов')
+      setLoading(false)
+      return
+    }
+
     try {
-      // Using example.com as it's a reserved domain that passes email validation
-      const email = `${data.phone.replace(/\D/g, '')}@example.com`
-      console.log('[v0] Attempting login with email:', email)
+      const supabase = createClient()
+      const email = `${cleanPhone}@example.com`
       
-      const { data: authData, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password: data.password 
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       })
-      
-      console.log('[v0] signInWithPassword result:', { 
-        hasSession: !!authData?.session,
-        hasUser: !!authData?.user,
-        error: error?.message 
-      })
-      
-      if (error) {
-        console.log('[v0] Login error:', error.message)
-        throw error
+
+      if (authError) {
+        if (authError.message.includes('Invalid login credentials')) {
+          setError('Неверный телефон или пароль')
+        } else {
+          setError(authError.message)
+        }
+        return
       }
-      
-      if (!authData.session) {
-        console.log('[v0] No session returned from login')
-        throw new Error('Сессия не создана. Попробуйте еще раз.')
-      }
-      
-      // Verify session was saved
-      const { data: { user } } = await supabase.auth.getUser()
-      console.log('[v0] getUser after login:', { userId: user?.id })
-      
-      logger.auth.loginSuccess(user?.id || 'unknown')
-      toast.success('Добро пожаловать!')
-      
-      console.log('[v0] Redirecting to:', redirectPath)
-      // Small delay to ensure cookies are written before redirect
-      await new Promise(resolve => setTimeout(resolve, 100))
-      // Use hard redirect to ensure session cookies are properly read
-      window.location.href = redirectPath
+
+      // Success - redirect to dashboard
+      router.push('/dashboard')
+      router.refresh()
     } catch (err: any) {
-      console.log('[v0] Caught error:', err?.message, err)
-      
-      // Don't show error if request was aborted
-      if (err?.name === 'AbortError') return
-      
-      logger.auth.loginError(err?.message || 'Unknown error')
-      
-      // Check for specific auth errors
-      const message = err?.message?.toLowerCase() || ''
-      if (message.includes('invalid login') || message.includes('invalid credentials')) {
-        toast.error(ERROR_MESSAGES.INVALID_CREDENTIALS)
-      } else {
-        toast.error(getErrorMessage(err))
-      }
+      setError(err?.message || 'Произошла ошибка. Попробуйте еще раз.')
     } finally {
       setLoading(false)
     }
-  }, [loading, redirectPath])
+  }
 
   return (
     <div className="animate-fade-up">
@@ -122,43 +67,40 @@ export default function LoginPage() {
         Продолжайте собирать семейную историю там, где остановились
       </p>
 
-      <form 
-        method="POST" 
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleSubmit(onSubmit)(e)
-        }} 
-        className="space-y-4 sm:space-y-5"
-      >
+      <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
         <div>
           <label className="label">Номер телефона</label>
           <input 
-            {...register('phone')} 
-            className="input-field text-base"
             type="tel" 
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="input-field text-base"
             placeholder="+77001234567"
             autoComplete="tel"
             disabled={loading}
+            required
           />
-          {errors.phone && (
-            <p className="font-mono text-[10px] text-red-400 mt-1">{errors.phone.message}</p>
-          )}
         </div>
 
         <div>
           <label className="label">Пароль</label>
           <input 
-            {...register('password')} 
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="input-field text-base"
-            type="password" 
             placeholder="••••••••"
             autoComplete="current-password"
             disabled={loading}
+            required
           />
-          {errors.password && (
-            <p className="font-mono text-[10px] text-red-400 mt-1">{errors.password.message}</p>
-          )}
         </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+            <p className="font-mono text-sm text-red-400">{error}</p>
+          </div>
+        )}
 
         <button 
           type="submit" 
