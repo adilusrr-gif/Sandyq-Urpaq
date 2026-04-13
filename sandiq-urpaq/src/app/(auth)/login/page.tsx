@@ -76,6 +76,8 @@ export default function LoginPage() {
       // Don't show error if request was aborted
       if (err?.name === 'AbortError') return
       
+      logger.auth.loginError(err?.message || 'Unknown error')
+      
       // Check for specific auth errors
       const message = err?.message?.toLowerCase() || ''
       if (message.includes('invalid login') || message.includes('invalid credentials')) {
