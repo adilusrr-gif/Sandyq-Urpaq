@@ -53,13 +53,16 @@ export default function RegisterPage() {
     abortControllerRef.current = new AbortController()
     
     setLoading(true)
+    const supabase = createClient() as any
+    
     try {
-      const supabase = createClient() as any
       const birthYear = Number.isFinite(data.birth_year as number) ? data.birth_year : null
 
       // 1. Create Supabase auth user (email = phone@example.com workaround)
       // Using example.com as it's a reserved domain that passes email validation
       const email = `${data.phone.replace(/\D/g, '')}@example.com`
+      console.log('[v0] Attempting signup with email:', email)
+      
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password: data.password,
@@ -68,11 +71,27 @@ export default function RegisterPage() {
         },
       })
 
-      if (authError) throw authError
+      console.log('[v0] signUp result:', { 
+        hasSession: !!authData?.session,
+        hasUser: !!authData?.user,
+        userId: authData?.user?.id,
+        error: authError?.message 
+      })
+
+      if (authError) {
+        console.log('[v0] Signup auth error:', authError.message)
+        throw authError
+      }
+      
+      if (!authData.user) {
+        console.log('[v0] No user returned from signup')
+        throw new Error('Не удалось создать аккаунт. Попробуйте еще раз.')
+      }
 
       // 2. Create user profile
+      console.log('[v0] Creating user profile for:', authData.user.id)
       const { error: profileError } = await supabase.from('users').insert({
-        id: authData.user!.id,
+        id: authData.user.id,
         full_name: data.full_name,
         phone: data.phone,
         birth_year: birthYear,
@@ -81,19 +100,24 @@ export default function RegisterPage() {
         paid_at: PAYMENT_ENABLED ? null : new Date().toISOString(),
       })
 
-      if (profileError) throw profileError
+      if (profileError) {
+        console.log('[v0] Profile creation error:', profileError.message)
+        throw profileError
+      }
 
-      logger.auth.signupSuccess(authData.user!.id)
+      console.log('[v0] Profile created successfully')
+      logger.auth.signupSuccess(authData.user.id)
       toast.success('Аккаунт создан!')
 
+      // Determine redirect path
+      const redirectTo = inviteCode ? `/join/${inviteCode}` : '/dashboard?onboarding=true'
+      console.log('[v0] Redirecting to:', redirectTo)
+      
       // Use hard redirect to ensure session cookies are properly read
-      // router.push() doesn't always wait for cookies to be set
-      if (inviteCode) {
-        window.location.href = `/join/${inviteCode}`
-      } else {
-        window.location.href = '/dashboard?onboarding=true'
-      }
+      window.location.href = redirectTo
     } catch (err: any) {
+      console.log('[v0] Caught error:', err?.message, err)
+      
       // Don't show error if request was aborted
       if (err?.name === 'AbortError') return
       logger.auth.signupError(err?.message || 'Unknown error')

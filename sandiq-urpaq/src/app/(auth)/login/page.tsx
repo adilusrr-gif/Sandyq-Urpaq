@@ -53,26 +53,47 @@ export default function LoginPage() {
     abortControllerRef.current = new AbortController()
     
     setLoading(true)
+    const supabase = createClient()
+    
     try {
-      const supabase = createClient()
       // Using example.com as it's a reserved domain that passes email validation
       const email = `${data.phone.replace(/\D/g, '')}@example.com`
-      const { error } = await supabase.auth.signInWithPassword({ 
+      console.log('[v0] Attempting login with email:', email)
+      
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password: data.password 
       })
       
-      if (error) throw error
+      console.log('[v0] signInWithPassword result:', { 
+        hasSession: !!authData?.session,
+        hasUser: !!authData?.user,
+        error: error?.message 
+      })
       
-      // Get user ID for logging
+      if (error) {
+        console.log('[v0] Login error:', error.message)
+        throw error
+      }
+      
+      if (!authData.session) {
+        console.log('[v0] No session returned from login')
+        throw new Error('Сессия не создана. Попробуйте еще раз.')
+      }
+      
+      // Verify session was saved
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('[v0] getUser after login:', { userId: user?.id })
+      
       logger.auth.loginSuccess(user?.id || 'unknown')
       toast.success('Добро пожаловать!')
       
+      console.log('[v0] Redirecting to:', redirectPath)
       // Use hard redirect to ensure session cookies are properly read
-      // router.push() doesn't always wait for cookies to be set
       window.location.href = redirectPath
     } catch (err: any) {
+      console.log('[v0] Caught error:', err?.message, err)
+      
       // Don't show error if request was aborted
       if (err?.name === 'AbortError') return
       
