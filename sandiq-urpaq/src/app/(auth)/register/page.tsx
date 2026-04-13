@@ -113,6 +113,8 @@ export default function RegisterPage() {
       const redirectTo = inviteCode ? `/join/${inviteCode}` : '/dashboard?onboarding=true'
       console.log('[v0] Redirecting to:', redirectTo)
       
+      // Small delay to ensure cookies are written before redirect
+      await new Promise(resolve => setTimeout(resolve, 100))
       // Use hard redirect to ensure session cookies are properly read
       window.location.href = redirectTo
     } catch (err: any) {

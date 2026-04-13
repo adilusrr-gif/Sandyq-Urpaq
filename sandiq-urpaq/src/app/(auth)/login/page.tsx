@@ -89,6 +89,8 @@ export default function LoginPage() {
       toast.success('Добро пожаловать!')
       
       console.log('[v0] Redirecting to:', redirectPath)
+      // Small delay to ensure cookies are written before redirect
+      await new Promise(resolve => setTimeout(resolve, 100))
       // Use hard redirect to ensure session cookies are properly read
       window.location.href = redirectPath
     } catch (err: any) {
