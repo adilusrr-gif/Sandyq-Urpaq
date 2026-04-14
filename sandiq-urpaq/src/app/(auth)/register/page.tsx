@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { PAYMENT_ENABLED } from '@/lib/config'
+import { createBrowserClient } from '@supabase/ssr'
+
+// Payment disabled for load testing
+const PAYMENT_ENABLED = false
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('')
@@ -15,7 +16,6 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [inviteCode, setInviteCode] = useState<string | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -23,37 +23,34 @@ export default function RegisterPage() {
     if (invite) setInviteCode(invite)
   }, [])
 
-  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    e.stopPropagation()
     
-    if (loading) return
-    
-    setLoading(true)
-    setError(null)
-
-    // Validate inputs
     if (!fullName.trim()) {
       setError('Введите ваше имя')
-      setLoading(false)
       return
     }
     
     const cleanPhone = phone.replace(/\D/g, '')
     if (cleanPhone.length < 10) {
       setError('Введите корректный номер телефона')
-      setLoading(false)
       return
     }
     
     if (password.length < 6) {
       setError('Пароль должен быть не менее 6 символов')
-      setLoading(false)
       return
     }
 
+    setLoading(true)
+    setError(null)
+
     try {
-      const supabase = createClient()
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      
       const email = `${cleanPhone}@example.com`
       
       // 1. Create auth user
@@ -98,16 +95,14 @@ export default function RegisterPage() {
         return
       }
 
-      // Success - redirect
+      // Успешная регистрация - жёсткий редирект
       if (inviteCode) {
-        router.push(`/join/${inviteCode}`)
+        window.location.href = `/join/${inviteCode}`
       } else {
-        router.push('/dashboard?onboarding=true')
+        window.location.href = '/dashboard?onboarding=true'
       }
-      router.refresh()
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Произошла ошибка'
-      setError(message)
+      setError('Произошла ошибка при регистрации')
       setLoading(false)
     }
   }
@@ -124,7 +119,7 @@ export default function RegisterPage() {
         Один красивый профиль, чтобы хранить дерево рода, истории и голос семьи
       </p>
 
-      <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label htmlFor="fullName" className="label">Имя</label>
@@ -138,7 +133,6 @@ export default function RegisterPage() {
               placeholder="Алибек Сейтов"
               autoComplete="name"
               disabled={loading}
-              required
             />
           </div>
           <div>
@@ -168,7 +162,6 @@ export default function RegisterPage() {
             placeholder="+77001234567"
             autoComplete="tel"
             disabled={loading}
-            required
           />
         </div>
 
@@ -198,31 +191,12 @@ export default function RegisterPage() {
             placeholder="Минимум 6 символов"
             autoComplete="new-password"
             disabled={loading}
-            required
           />
         </div>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
             <p className="font-mono text-sm text-red-400">{error}</p>
-          </div>
-        )}
-
-        {/* Payment preview - only show if payments enabled */}
-        {PAYMENT_ENABLED && (
-          <div className="card-gold flex items-center justify-between">
-            <div>
-              <div className="font-mono text-[9px] tracking-[2px] uppercase text-parchment/40 mb-1">
-                Доступ к кабинету
-              </div>
-              <div className="font-display font-black text-3xl text-gold">500 ₸</div>
-              <div className="font-mono text-[9px] text-parchment/30 mt-1">
-                Kaspi или демо-активация для тестового запуска
-              </div>
-            </div>
-            <div className="bg-[#ef3e42] text-white font-display font-bold text-xs px-4 py-2 rounded-full">
-              TEST MODE
-            </div>
           </div>
         )}
 

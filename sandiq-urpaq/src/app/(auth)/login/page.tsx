@@ -2,58 +2,44 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function LoginPage() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    console.log('[v0] handleLogin called')
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    e.stopPropagation()
     
-    if (loading) {
-      console.log('[v0] Already loading, returning')
-      return
-    }
-    
-    console.log('[v0] Starting login process')
-    setLoading(true)
-    setError(null)
-
-    // Validate inputs
     const cleanPhone = phone.replace(/\D/g, '')
     if (cleanPhone.length < 10) {
       setError('Введите корректный номер телефона')
-      setLoading(false)
       return
     }
     if (password.length < 6) {
       setError('Пароль должен быть не менее 6 символов')
-      setLoading(false)
       return
     }
 
+    setLoading(true)
+    setError(null)
+
     try {
-      console.log('[v0] Creating Supabase client')
-      const supabase = createClient()
-      const email = `${cleanPhone}@example.com`
-      console.log('[v0] Attempting login with email:', email)
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const email = `${cleanPhone}@example.com`
+      
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-      
-      console.log('[v0] Login response:', { hasSession: !!data?.session, error: authError?.message })
 
       if (authError) {
-        console.log('[v0] Auth error:', authError.message)
         if (authError.message.includes('Invalid login credentials')) {
           setError('Неверный телефон или пароль')
         } else {
@@ -63,14 +49,10 @@ export default function LoginPage() {
         return
       }
 
-      // Success - redirect to dashboard
-      console.log('[v0] Login successful, redirecting to dashboard')
-      router.push('/dashboard')
-      router.refresh()
+      // Успешный вход - жёсткий редирект
+      window.location.href = '/dashboard'
     } catch (err) {
-      console.log('[v0] Catch block error:', err)
-      const message = err instanceof Error ? err.message : 'Произошла ошибка'
-      setError(message)
+      setError('Произошла ошибка при входе')
       setLoading(false)
     }
   }
@@ -84,7 +66,7 @@ export default function LoginPage() {
         Продолжайте собирать семейную историю там, где остановились
       </p>
 
-      <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
         <div>
           <label htmlFor="phone" className="label">Номер телефона</label>
           <input 
@@ -97,7 +79,6 @@ export default function LoginPage() {
             placeholder="+77001234567"
             autoComplete="tel"
             disabled={loading}
-            required
           />
         </div>
 
@@ -113,7 +94,6 @@ export default function LoginPage() {
             placeholder="••••••••"
             autoComplete="current-password"
             disabled={loading}
-            required
           />
         </div>
 
